@@ -1,0 +1,11 @@
+ALTER TABLE users
+    ADD sub VARCHAR(255);
+
+ALTER TABLE users
+    ALTER COLUMN sub SET NOT NULL;
+
+ALTER TABLE users
+    ADD CONSTRAINT uc_users_sub UNIQUE (sub);
+
+ALTER TABLE users
+    DROP COLUMN email;
