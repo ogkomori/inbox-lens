@@ -1,0 +1,78 @@
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import ThemeToggle from "@/components/ThemeToggle"; // Add this import
+import { useNavigate } from "react-router-dom"; // Add this import
+
+type User = {
+  name: string;
+  avatar: string;
+};
+
+const DashboardNavigation = ({ user }: { user: User }) => {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate(); // Add this line
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    if (open) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <button
+          className="font-bold text-2xl bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent focus:outline-none"
+          onClick={() => navigate("/")}
+          aria-label="Go to homepage"
+        >
+          CoreFocus
+        </button>
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <div className="relative" ref={menuRef}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full border-2 border-primary w-10 h-10 overflow-hidden"
+              onClick={() => setOpen((v) => !v)}
+              aria-label="Open user menu"
+            >
+              <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+            </Button>
+            {open && (
+              <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-lg py-2 z-50">
+                <a
+                  href="/dashboard"
+                  className="block px-4 py-2 text-foreground hover:bg-secondary transition-colors"
+                >
+                  Dashboard
+                </a>
+                <a
+                  href="/settings"
+                  className="block px-4 py-2 text-foreground hover:bg-secondary transition-colors"
+                >
+                  Settings
+                </a>
+                <button
+                  className="block w-full text-left px-4 py-2 text-foreground hover:bg-secondary transition-colors"
+                  onClick={() => {/* handle logout here */}}
+                >
+                  Log Out
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default DashboardNavigation;
