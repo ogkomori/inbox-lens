@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "users")
@@ -26,4 +27,5 @@ public class UserEntity {
     private String refreshToken;
     private Instant refreshTokenIssuedAt;
     private Instant refreshTokenExpiresAt;
+    private LocalTime preferredTime;
 }

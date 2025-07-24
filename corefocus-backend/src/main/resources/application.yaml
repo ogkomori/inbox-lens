@@ -19,3 +19,7 @@ spring:
           google:
             authorization-uri: "https://accounts.google.com/o/oauth2/auth?access_type=offline&prompt=consent"
             token-uri: "https://oauth2.googleapis.com/token"
+
+jwt:
+  secret:
+    key: ${JWT_SECRET_KEY}
