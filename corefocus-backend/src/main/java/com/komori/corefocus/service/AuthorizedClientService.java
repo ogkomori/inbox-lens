@@ -66,8 +66,6 @@ public class AuthorizedClientService implements OAuth2AuthorizedClientService {
 
     @Override
     public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
-        System.out.println("SaveAuthorizedClient started");
-
         Assert.notNull(authorizedClient, "authorizedClient cannot be null"); // Can throw Illegal Argument Exception
         Assert.notNull(principal, "principal cannot be null");
 

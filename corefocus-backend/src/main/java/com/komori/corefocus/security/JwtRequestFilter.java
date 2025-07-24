@@ -1,6 +1,5 @@
 package com.komori.corefocus.security;
 
-import com.komori.corefocus.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -16,18 +15,16 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
-    private final List<String> PUBLIC_URLS = List.of("/api/home", "/oauth2/authorization/google");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         String path = request.getServletPath();
-        if (PUBLIC_URLS.contains(path)) {
+        if (path.startsWith("/oauth2/") || path.equals("/")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -62,6 +59,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(sub, null,  new ArrayList<>());
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                }
+                else {
+                    logger.warn("Invalid or expired JWT for subject: " + sub); // From extended classes
                 }
             }
         }

@@ -2,17 +2,18 @@ package com.komori.corefocus.security;
 
 import com.komori.corefocus.entity.UserEntity;
 import com.komori.corefocus.repository.UserRepository;
-import com.komori.corefocus.util.JwtUtil;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
@@ -25,20 +26,24 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         String accessToken = jwtUtil.generateAccessToken(authentication.getName());
         String refreshToken = jwtUtil.generateRefreshToken(authentication.getName());
 
-        Cookie accessTokenCookie = new Cookie("jwt", accessToken);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(60 * 15); // 15 minutes
-        accessTokenCookie.setSecure(request.isSecure()); // Use request.isSecure() for flexibility
+        ResponseCookie accessCookie = ResponseCookie.from("jwt", accessToken)
+                .httpOnly(true)
+                .path("/")
+                .secure(true)
+                .maxAge(Duration.ofMinutes(15))
+                .sameSite("None")
+                .build();
 
-        Cookie refreshTokenCookie = new Cookie("refresh", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(60 * 60 * 24 * 14); // 14 days
-        refreshTokenCookie.setSecure(request.isSecure());
+        ResponseCookie refreshCookie = ResponseCookie.from("refresh", refreshToken)
+                .httpOnly(true)
+                .path("/")
+                .secure(true)
+                .maxAge(Duration.ofDays(14))
+                .sameSite("None")
+                .build();
 
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
         UserEntity user = userRepository.findBySub(authentication.getName())
                         .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
