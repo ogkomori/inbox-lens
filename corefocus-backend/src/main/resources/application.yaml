@@ -19,6 +19,20 @@ spring:
           google:
             authorization-uri: "https://accounts.google.com/o/oauth2/auth?access_type=offline&prompt=consent"
             token-uri: "https://oauth2.googleapis.com/token"
+  mail:
+    host: smtp-relay.brevo.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          from: ${MAIL_FROM}
 
 jwt:
   secret:
