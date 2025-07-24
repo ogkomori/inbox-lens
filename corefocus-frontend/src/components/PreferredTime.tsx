@@ -6,17 +6,39 @@ const hours = Array.from({ length: 12 }, (_, i) => i + 1);
 const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, "0"));
 const ampm = ["AM", "PM"];
 
+const to24HourString = (hour: number, minute: string, period: string) => {
+  let h = hour % 12;
+  if (period === "PM") h += 12;
+  return `${h.toString().padStart(2, "0")}:${minute}`;
+};
+
 const PreferredTime = () => {
   const [hour, setHour] = useState(8);
   const [minute, setMinute] = useState("00");
   const [period, setPeriod] = useState("AM");
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // handle preferred time save here
-    alert(`Preferred time set to: ${hour}:${minute} ${period}`);
-    navigate("/dashboard");
+    const time24 = to24HourString(hour, minute, period);
+    try {
+      const response = await fetch("http://localhost:8080/api/set-preferred-time", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ preferredTime: time24 }),
+        credentials: "include", // <-- this sends cookies, including HttpOnly
+      });
+      if (!response.ok) {
+        throw new Error("Failed to set preferred time");
+      }
+      // Optionally handle response data here
+      alert(`Preferred time set to: ${time24}`);
+      navigate("/dashboard");
+    } catch (error) {
+      alert("Error: " + (error instanceof Error ? error.message : "Unknown error"));
+    }
   };
 
   return (
