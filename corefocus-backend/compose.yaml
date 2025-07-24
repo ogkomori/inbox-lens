@@ -1,7 +1,7 @@
 services:
   postgres:
     image: "postgres:latest"
-    container_name: "corefocus_db"
+    container_name: "corefocus"
     environment:
       - "POSTGRES_DB=corefocus"
       - "POSTGRES_PASSWORD=corefocus"
