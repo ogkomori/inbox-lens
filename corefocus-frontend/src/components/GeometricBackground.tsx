@@ -91,6 +91,16 @@ const GeometricBackground = () => {
       <div className="absolute top-1/3 left-10 w-1.5 h-1.5 bg-primary/40 rounded-full animate-ping" style={{ animationDuration: '3.5s' }}></div>
       <div className="absolute bottom-1/4 right-1/3 w-2 h-2 bg-primary-glow/35 rounded-full animate-ping" style={{ animationDuration: '6.5s' }}></div>
       <div className="absolute top-2/5 right-12 w-2 h-2 bg-primary/30 rounded-full animate-ping" style={{ animationDuration: '5.2s' }}></div>
+      {/* Extra dots for more density */}
+      <div className="absolute top-1/2 left-1/4 w-2 h-2 bg-primary/30 rounded-full animate-ping" style={{ animationDuration: '4.2s' }}></div>
+      <div className="absolute bottom-1/2 right-1/2 w-2.5 h-2.5 bg-primary-glow/30 rounded-full animate-ping" style={{ animationDuration: '5.8s' }}></div>
+      <div className="absolute top-1/5 left-1/5 w-1.5 h-1.5 bg-primary/35 rounded-full animate-ping" style={{ animationDuration: '3.8s' }}></div>
+      <div className="absolute bottom-1/3 right-1/5 w-2 h-2 bg-primary-glow/20 rounded-full animate-ping" style={{ animationDuration: '6.2s' }}></div>
+      <div className="absolute top-1/6 right-1/2 w-2 h-2 bg-primary/25 rounded-full animate-ping" style={{ animationDuration: '4.7s' }}></div>
+      <div className="absolute bottom-1/8 left-1/2 w-2.5 h-2.5 bg-primary-glow/25 rounded-full animate-ping" style={{ animationDuration: '5.9s' }}></div>
+      <div className="absolute top-2/3 left-1/3 w-1.5 h-1.5 bg-primary/40 rounded-full animate-ping" style={{ animationDuration: '3.2s' }}></div>
+      <div className="absolute bottom-1/4 right-1/6 w-2 h-2 bg-primary-glow/35 rounded-full animate-ping" style={{ animationDuration: '6.8s' }}></div>
+      <div className="absolute top-1/4 right-1/8 w-2 h-2 bg-primary/30 rounded-full animate-ping" style={{ animationDuration: '5.1s' }}></div>
     </div>
   );
 };

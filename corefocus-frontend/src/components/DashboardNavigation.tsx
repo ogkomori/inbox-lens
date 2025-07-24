@@ -1,7 +1,9 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import ThemeToggle from "@/components/ThemeToggle"; // Add this import
-import { useNavigate } from "react-router-dom"; // Add this import
+import ThemeToggle from "@/components/ThemeToggle";
+import { useNavigate } from "react-router-dom";
+import { FaUserCircle } from "react-icons/fa";
 
 type User = {
   name: string;
@@ -37,15 +39,14 @@ const DashboardNavigation = ({ user }: { user: User }) => {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <div className="relative" ref={menuRef}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full border-2 border-primary w-10 h-10 overflow-hidden"
+            <button
+              className="flex items-center gap-2 focus:outline-none"
               onClick={() => setOpen((v) => !v)}
-              aria-label="Open user menu"
+              aria-label="Open profile menu"
+              type="button"
             >
-              <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-            </Button>
+              <FaUserCircle className="h-8 w-8 text-primary" />
+            </button>
             {open && (
               <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-lg py-2 z-50">
                 <a

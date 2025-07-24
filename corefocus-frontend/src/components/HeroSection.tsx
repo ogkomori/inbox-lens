@@ -1,7 +1,12 @@
+
+
 import { Button } from "@/components/ui/button";
 import GeometricBackground from "@/components/GeometricBackground";
+import { useAuth } from "@/context/AuthContext";
 
 const HeroSection = () => {
+  const { loggedIn } = useAuth();
+
   return (
     <section id="home" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary/30 relative">
       <GeometricBackground />
@@ -14,9 +19,15 @@ const HeroSection = () => {
           CoreFocus helps you stay organized, focused, and achieve your goals efficiently.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button variant="hero" size="lg" className="text-lg px-8 py-4">
-            Get Started
-          </Button>
+          {loggedIn === null ? null : loggedIn ? (
+            <Button asChild variant="hero" size="lg" className="text-lg px-8 py-4">
+              <a href="/dashboard">View Dashboard</a>
+            </Button>
+          ) : (
+            <Button asChild variant="hero" size="lg" className="text-lg px-8 py-4">
+              <a href="http://localhost:8080/oauth2/authorization/google">Get Started</a>
+            </Button>
+          )}
           <Button
             asChild
             variant="outline"
@@ -27,7 +38,6 @@ const HeroSection = () => {
           </Button>
         </div>
       </div>
-      
       {/* Section divider */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
     </section>
