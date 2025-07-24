@@ -21,11 +21,11 @@ public class UserEntity {
     @Column(unique = true, nullable = false)
     private String sub;
     private String name;
+    private String email;
     private String accessToken;
     private Instant accessTokenIssuedAt;
     private Instant accessTokenExpiresAt;
     private String refreshToken;
     private Instant refreshTokenIssuedAt;
-    private Instant refreshTokenExpiresAt;
     private LocalTime preferredTime;
 }

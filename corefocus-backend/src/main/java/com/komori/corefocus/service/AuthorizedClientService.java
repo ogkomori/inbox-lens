@@ -7,10 +7,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -43,8 +45,7 @@ public class AuthorizedClientService implements OAuth2AuthorizedClientService {
         if (user.getRefreshToken() != null) {
             OAuth2RefreshToken refreshToken = new OAuth2RefreshToken(
                     user.getRefreshToken(),
-                    user.getRefreshTokenIssuedAt(),
-                    user.getRefreshTokenExpiresAt()
+                    user.getRefreshTokenIssuedAt()
             );
 
             return (T) new OAuth2AuthorizedClient(
@@ -75,10 +76,16 @@ public class AuthorizedClientService implements OAuth2AuthorizedClientService {
         OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
         OAuth2RefreshToken refreshToken = authorizedClient.getRefreshToken();
 
+        OAuth2User oAuth2User = ((OAuth2AuthenticationToken) principal).getPrincipal();
+        String email = oAuth2User.getAttribute("email");
+        String name = oAuth2User.getAttribute("given_name");
+
         UserEntity newUser;
         if (user.isEmpty()) {
             UserEntity.UserEntityBuilder builder = UserEntity.builder()
                     .sub(principalName)
+                    .email(email)
+                    .name(name)
                     .accessToken(accessToken.getTokenValue())
                     .accessTokenIssuedAt(accessToken.getIssuedAt())
                     .accessTokenExpiresAt(accessToken.getExpiresAt());
@@ -87,7 +94,7 @@ public class AuthorizedClientService implements OAuth2AuthorizedClientService {
                 builder
                         .refreshToken(refreshToken.getTokenValue())
                         .refreshTokenIssuedAt(refreshToken.getIssuedAt())
-                        .refreshTokenExpiresAt(refreshToken.getExpiresAt());
+                        .build();
             }
 
             newUser = builder.build();
@@ -101,7 +108,6 @@ public class AuthorizedClientService implements OAuth2AuthorizedClientService {
             if (refreshToken != null && refreshToken.getTokenValue() != null) {
                 newUser.setRefreshToken(refreshToken.getTokenValue());
                 newUser.setRefreshTokenIssuedAt(refreshToken.getIssuedAt());
-                newUser.setRefreshTokenExpiresAt(refreshToken.getExpiresAt());
             }
 
         }
@@ -122,7 +128,6 @@ public class AuthorizedClientService implements OAuth2AuthorizedClientService {
         user.setAccessTokenExpiresAt(null);
         user.setRefreshToken(null);
         user.setRefreshTokenIssuedAt(null);
-        user.setRefreshTokenExpiresAt(null);
 
         userRepository.save(user);
     }
