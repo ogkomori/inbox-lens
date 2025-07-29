@@ -28,4 +28,6 @@ public class UserEntity {
     private String refreshToken;
     private Instant refreshTokenIssuedAt;
     private LocalTime preferredTime;
+    @Builder.Default
+    private Boolean inboxAccessGranted = false;
 }
