@@ -11,11 +11,14 @@ import org.springframework.stereotype.Service;
 public class EmailService {
     @Value("${spring.mail.properties.mail.smtp.from}")
     private String fromEmail;
-    private JavaMailSender javaMailSender;
+    private final JavaMailSender mailSender;
 
-    public void sendSummaryEmail(String toEmail) {
+    public void sendWelcomeEmail(String toEmail, String name) {
         SimpleMailMessage message = new SimpleMailMessage();
-        // add Mail details
-        javaMailSender.send(message);
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject("Welcome to CoreFocus!");
+        message.setText("Welcome, " + name + "!");
+        mailSender.send(message);
     }
 }
