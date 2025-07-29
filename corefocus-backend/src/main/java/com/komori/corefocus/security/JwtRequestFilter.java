@@ -2,7 +2,6 @@ package com.komori.corefocus.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -40,15 +39,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // If not found in header, check cookies
         if (jwt == null) {
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals("jwt")) {
-                        jwt = cookie.getValue();
-                        break;
-                    }
-                }
-            }
+            jwt = jwtUtil.extractTokenFromCookie(request, "jwt");
         }
 
         // Validate the JWT, extract email, and set Security Context if user isn't already authenticated

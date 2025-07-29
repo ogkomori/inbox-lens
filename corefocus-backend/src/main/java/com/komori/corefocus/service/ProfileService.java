@@ -16,14 +16,14 @@ public class ProfileService {
 
     public DashboardDetails getDashboardDetails(String sub) {
         UserEntity userEntity = userRepository.findBySub(sub)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
 
         return new DashboardDetails(userEntity.getName(), userEntity.getEmail());
     }
 
     public void setPreferredTime(String sub, String time) {
         UserEntity userEntity = userRepository.findBySub(sub)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
 
         userEntity.setPreferredTime(LocalTime.parse(time));
         userRepository.save(userEntity);

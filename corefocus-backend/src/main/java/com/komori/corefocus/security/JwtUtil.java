@@ -1,10 +1,13 @@
 package com.komori.corefocus.security;
 
+import com.komori.corefocus.repository.UserRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,9 +17,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
     @Value("${jwt.secret.key}")
     private String STORED_SECRET_KEY;
+    private final UserRepository userRepository;
 
     public String generateAccessToken(String sub) {
         Map<String, Object> claims = new HashMap<>();
@@ -24,7 +29,7 @@ public class JwtUtil {
                 .claims(claims)
                 .subject(sub)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15)) // 15 min expiration
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60)) // 1 min expiration
                 .signWith(Keys.hmacShaKeyFor(STORED_SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
                 .compact();
     }
@@ -40,12 +45,12 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String extractRefreshTokenFromCookie(HttpServletRequest request) {
+    public String extractTokenFromCookie(HttpServletRequest request, String name) {
         String token = null;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("refresh")) {
+                if (cookie.getName().equals(name)) {
                     token = cookie.getValue();
                     break;
                 }
@@ -55,11 +60,15 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(STORED_SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            return Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(STORED_SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 
     public String extractSubFromToken(String token) {
@@ -74,12 +83,7 @@ public class JwtUtil {
     }
 
     public Boolean validateAccessToken(String token, String sub) {
-        final String tokenSub = extractSubFromToken(token);
-        return sub.equals(tokenSub) && !isTokenExpired(token);
-    }
-
-    public Boolean validateRefreshToken(String token, String sub) {
-        final String receivedEmail = extractSubFromToken(token);
-        return sub.equals(receivedEmail) && !isTokenExpired(token);
+        boolean exists = userRepository.existsBySub(sub);
+        return exists && !isTokenExpired(token);
     }
 }

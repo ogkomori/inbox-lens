@@ -8,12 +8,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 .httpOnly(true)
                 .path("/")
                 .secure(true)
-                .maxAge(Duration.ofMinutes(15))
+                .maxAge(Duration.ofMinutes(1))
                 .sameSite("None")
                 .build();
 
@@ -45,14 +47,25 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-        UserEntity user = userRepository.findBySub(authentication.getName())
-                        .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
+        OAuth2User oAuth2User = ((OAuth2AuthenticationToken) authentication).getPrincipal();
+        Optional<UserEntity> user = userRepository.findBySub(authentication.getName());
+        if (user.isEmpty()) {
+            UserEntity newUser = UserEntity.builder()
+                    .email(oAuth2User.getAttribute("email"))
+                    .sub(authentication.getName())
+                    .name(oAuth2User.getAttribute("given_name"))
+                    .build();
+            userRepository.save(newUser);
 
-        if (user.getPreferredTime() == null) {
             response.sendRedirect("http://localhost:5173/preferred-time");
         }
         else {
-            response.sendRedirect("http://localhost:5173/dashboard");
+            if (user.get().getPreferredTime() == null) {
+                response.sendRedirect("http://localhost:5173/preferred-time");
+            }
+            else {
+                response.sendRedirect("http://localhost:5173/dashboard");
+            }
         }
     }
 }
