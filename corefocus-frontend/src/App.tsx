@@ -7,14 +7,14 @@ import { ThemeProvider } from "next-themes";
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Dashboard from "@/components/Dashboard";
+import Dashboard, { GmailAccessProvider } from "@/components/Dashboard";
 import Settings from "@/components/Settings";
 import PreferredTime from "@/components/PreferredTime";
+import Applications from "./pages/Applications";
 import { AuthProvider } from "@/context/AuthContext";
-import { UserProvider } from "@/context/UserContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
-
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -23,18 +23,31 @@ const App = () => (
         <Toaster />
         <Sonner />
         <AuthProvider>
-          <UserProvider>
+          <GmailAccessProvider>
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
                 <Route path="/preferred-time" element={<PreferredTime />} />
-                <Route path="/settings" element={<Settings />} />
+                <Route path="/settings" element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                } />
+                <Route path="/applications" element={
+                  <ProtectedRoute>
+                    <Applications />
+                  </ProtectedRoute>
+                } />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
-          </UserProvider>
+          </GmailAccessProvider>
         </AuthProvider>
       </TooltipProvider>
     </ThemeProvider>
