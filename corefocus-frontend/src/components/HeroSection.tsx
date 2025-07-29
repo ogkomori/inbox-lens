@@ -7,9 +7,11 @@ import { useAuth } from "@/context/AuthContext";
 const HeroSection = () => {
   const { loggedIn } = useAuth();
 
+  // Adjust this value to match the height of your MAIN navigation bar (e.g., 64 for 4rem)
+  const mainNavHeight = 64;
   return (
     <section id="home" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary/30 relative">
-      <GeometricBackground />
+      <GeometricBackground topOffset={mainNavHeight} />
       <div className="container mx-auto px-4 text-center relative z-10">
         <h1 className="text-8xl md:text-10xl font-bold mb-6 bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
           CoreFocus
@@ -25,7 +27,7 @@ const HeroSection = () => {
             </Button>
           ) : (
             <Button asChild variant="hero" size="lg" className="text-lg px-8 py-4">
-              <a href="http://localhost:8080/oauth2/authorization/google">Get Started</a>
+              <a href={`${import.meta.env.VITE_BACKEND_BASE_URL}/oauth2/authorization/google`}>Get Started</a>
             </Button>
           )}
           <Button

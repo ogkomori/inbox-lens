@@ -1,23 +1,81 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { toast } from "@/hooks/use-toast";
+
+interface User {
+  name: string;
+  email: string;
+  avatar: string;
+}
 
 interface AuthContextType {
   loggedIn: boolean | null;
+  user: User | null;
   refreshAuth: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   loggedIn: null,
+  user: null,
   refreshAuth: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
-  const fetchAuth = () => {
-    fetch("http://localhost:8080/api/auth/status", { credentials: "include" })
-      .then(res => res.json())
-      .then(data => setLoggedIn(data.loggedIn === "true" || data.loggedIn === true))
-      .catch(() => setLoggedIn(false));
+  const fetchAuth = async () => {
+    try {
+      const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
+      // Always start with GET /me
+      let res = await fetch(`${baseUrl}/api/profile/me`, { credentials: "include" });
+      let data = await res.json();
+      console.log("[AuthContext] GET /api/profile/me response:", data);
+      if (res.status === 401 || data.success === false) {
+        // If /me fails, try refresh
+        const refreshRes = await fetch(`${baseUrl}/api/auth/refresh`, {
+          method: "POST",
+          credentials: "include",
+        });
+        const refreshData = await refreshRes.json().catch(() => ({}));
+        console.log("[AuthContext] POST /api/auth/refresh response:", refreshData);
+        if (refreshRes.status === 401) {
+          setLoggedIn(false);
+          setUser(null);
+          return;
+        }
+        // If refresh succeeds, try /me again
+        res = await fetch(`${baseUrl}/api/profile/me`, { credentials: "include" });
+        data = await res.json();
+        console.log("[AuthContext] GET /api/profile/me after refresh response:", data);
+        if (res.status === 401 || data.success === false) {
+          setLoggedIn(false);
+          setUser(null);
+          return;
+        }
+      }
+      // Only set loggedIn/user if /me succeeds (either first or after refresh)
+      if (res.status === 401 || data.success === false) {
+        // Only set to false if both attempts failed
+        setLoggedIn(false);
+        setUser(null);
+      } else {
+        setLoggedIn(true);
+        setUser({
+          name: data.name || "",
+          email: data.email || "",
+          avatar: data.avatar || ""
+        });
+      }
+    } catch (err) {
+      console.log("[AuthContext] fetchAuth error:", err);
+      setLoggedIn(false);
+      setUser(null);
+      toast({
+        title: "Authentication Error",
+        description: "Could not verify your session. Please log in again.",
+        variant: "destructive"
+      });
+    }
   };
 
   useEffect(() => {
@@ -25,8 +83,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ loggedIn, refreshAuth: fetchAuth }}>
-      {loggedIn === null ? null : children}
+    <AuthContext.Provider value={{ loggedIn, user, refreshAuth: fetchAuth }}>
+      {loggedIn === null ? (
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-primary border-solid" aria-label="Loading authentication status"></div>
+        </div>
+      ) : children}
     </AuthContext.Provider>
   );
 };

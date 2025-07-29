@@ -23,7 +23,7 @@ const PreferredTime = () => {
     e.preventDefault();
     const time24 = to24HourString(hour, minute, period);
     try {
-      const response = await fetch("http://localhost:8080/api/profile/set-preferred-time", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/profile/set-preferred-time`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

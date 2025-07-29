@@ -1,19 +1,22 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
+import { useAuth } from "@/context/AuthContext";
 
 type User = {
   name: string;
+  email: string;
   avatar: string;
 };
 
 const DashboardNavigation = ({ user }: { user: User }) => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate(); // Add this line
+  const navigate = useNavigate();
+  // removed refreshUser, not needed
+  const { loggedIn } = useAuth();
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -38,38 +41,51 @@ const DashboardNavigation = ({ user }: { user: User }) => {
         </button>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <div className="relative" ref={menuRef}>
-            <button
-              className="flex items-center gap-2 focus:outline-none"
-              onClick={() => setOpen((v) => !v)}
-              aria-label="Open profile menu"
-              type="button"
-            >
-              <FaUserCircle className="h-8 w-8 text-primary" />
-            </button>
-            {open && (
-              <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-lg py-2 z-50">
-                <a
-                  href="/dashboard"
-                  className="block px-4 py-2 text-foreground hover:bg-secondary transition-colors"
-                >
-                  Dashboard
-                </a>
-                <a
-                  href="/settings"
-                  className="block px-4 py-2 text-foreground hover:bg-secondary transition-colors"
-                >
-                  Settings
-                </a>
-                <button
-                  className="block w-full text-left px-4 py-2 text-foreground hover:bg-secondary transition-colors"
-                  onClick={() => {/* handle logout here */}}
-                >
-                  Log Out
-                </button>
-              </div>
-            )}
-          </div>
+          {loggedIn && (
+            <div className="relative" ref={menuRef}>
+              <button
+                className="flex items-center gap-2 focus:outline-none"
+                onClick={() => setOpen((v) => !v)}
+                aria-label="Open profile menu"
+                type="button"
+              >
+                {user.avatar ? (
+                  <img src={user.avatar} alt="avatar" className="h-8 w-8 rounded-full" />
+                ) : (
+                  <FaUserCircle className="h-8 w-8 text-primary" />
+                )}
+              </button>
+              {open && (
+                <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-lg py-2 z-50">
+                  <a
+                    href="/dashboard"
+                    className="block px-4 py-2 text-foreground hover:bg-secondary transition-colors"
+                  >
+                    Dashboard
+                  </a>
+                  <a
+                    href="/settings"
+                    className="block px-4 py-2 text-foreground hover:bg-secondary transition-colors"
+                  >
+                    Settings
+                  </a>
+                  <button
+                    className="block w-full text-left px-4 py-2 text-foreground hover:bg-secondary transition-colors"
+                    onClick={() => {
+                      fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/logout`, { method: "POST", credentials: "include" })
+                        .then(() => {
+                          localStorage.clear();
+      // removed refreshUser, not needed
+                          window.location.href = "/";
+                        });
+                    }}
+                  >
+                    Log Out
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </nav>

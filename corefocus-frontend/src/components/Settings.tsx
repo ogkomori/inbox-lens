@@ -3,11 +3,11 @@
 import DashboardNavigation from "@/components/DashboardNavigation";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useUser } from "@/context/UserContext";
+import { useAuth } from "@/context/AuthContext";
 import { FaUserCircle } from "react-icons/fa";
 
 const Settings = () => {
-  const { user } = useUser();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">

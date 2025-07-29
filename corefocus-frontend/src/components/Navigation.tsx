@@ -61,8 +61,10 @@ const Navigation = () => {
                   <button
                     className="px-4 py-2 text-left hover:bg-muted"
                     onClick={() => {
-                      fetch("http://localhost:8080/api/logout", { method: "POST", credentials: "include" })
-                        .then(() => window.location.reload());
+                      fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/logout`, { method: "POST", credentials: "include" })
+                        .then(() => {
+                          window.location.href = "/";
+                        });
                     }}
                   >Logout</button>
                 </div>
@@ -71,7 +73,7 @@ const Navigation = () => {
           ) : (
             <Button variant="google" className="gap-2">
               <FaChrome className="h-4 w-4" />
-              <a href="http://localhost:8080/oauth2/authorization/google">Log in with Google</a>
+              <a href={`${import.meta.env.VITE_BACKEND_BASE_URL}/oauth2/authorization/google`}>Sign in with Google</a>
             </Button>
           )}
         </div>
@@ -95,8 +97,12 @@ const Navigation = () => {
                   <button
                     className="px-4 py-2 text-left hover:bg-muted"
                     onClick={() => {
-                      fetch("http://localhost:8080/api/logout", { method: "POST", credentials: "include" })
-                        .then(() => window.location.reload());
+                      fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/logout`, { method: "POST", credentials: "include" })
+                        .then(() => {
+                          localStorage.clear();
+                          sessionStorage.clear();
+                          window.location.href = "/";
+                        });
                     }}
                   >Logout</button>
                 </div>
