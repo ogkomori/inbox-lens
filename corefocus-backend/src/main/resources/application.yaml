@@ -7,18 +7,17 @@ spring:
     oauth2:
       client:
         registration:
-          google:
-            client-id: ${CLIENT_ID}
-            client-secret: ${CLIENT_SECRET}
+          google: # For connecting Google account
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
             scope:
               - "email"
               - "profile"
-              - "https://www.googleapis.com/auth/gmail.readonly"
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "http://localhost:8080/login/oauth2/code/google"
             authorization-grant-type: "authorization_code"
         provider:
           google:
-            authorization-uri: "https://accounts.google.com/o/oauth2/auth?access_type=offline&prompt=consent"
+            authorization-uri: "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline"
             token-uri: "https://oauth2.googleapis.com/token"
   mail:
     host: smtp-relay.brevo.com
@@ -35,6 +34,19 @@ spring:
             required: true
           from: ${MAIL_FROM}
 
+gmail:
+  oauth:
+    client-id: ${GMAIL_CLIENT_ID}
+    client-secret: ${GMAIL_CLIENT_SECRET}
+    scope: "https://www.googleapis.com/auth/gmail.readonly"
+    auth-uri: "https://accounts.google.com/o/oauth2/v2/auth"
+    redirect-uri: "http://localhost:8080/api/gmail/oauth2/callback"
+    token-uri: "https://oauth2.googleapis.com/token"
+
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
+
+logging:
+  level:
+    org.springframework.security: DEBUG
