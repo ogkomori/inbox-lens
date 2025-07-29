@@ -1,6 +1,9 @@
-const GeometricBackground = () => {
+const GeometricBackground = ({ topOffset = 0 }: { topOffset?: number }) => {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div
+      className="absolute left-0 right-0 bottom-0 overflow-hidden pointer-events-none z-0"
+      style={{ top: topOffset }}
+    >
       {/* Large geometric shapes */}
       <div className="absolute top-20 left-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
       <div className="absolute top-40 right-20 w-48 h-48 bg-primary-glow/10 rotate-45 rounded-3xl blur-2xl"></div>
@@ -13,6 +16,45 @@ const GeometricBackground = () => {
       <div className="absolute bottom-1/5 right-1/6 w-28 h-28 bg-primary-glow/15 rounded-2xl blur-xl"></div>
       <div className="absolute top-1/2 right-10 w-20 h-20 bg-primary/10 rounded-full blur-lg"></div>
       <div className="absolute bottom-1/4 left-10 w-16 h-16 bg-primary-glow/10 rounded-2xl blur-lg"></div>
+      {/* New random geometric shapes */}
+      <div className="absolute top-32 left-1/2 w-24 h-24 bg-primary-glow/15 rounded-full blur-2xl"></div>
+      <div className="absolute bottom-24 right-1/3 w-20 h-20 bg-primary/10 rounded-3xl blur-xl"></div>
+      <div className="absolute top-1/3 right-1/8 w-16 h-16 bg-primary-glow/20 rounded-full blur-xl"></div>
+      <div className="absolute bottom-1/6 left-1/8 w-18 h-18 bg-primary/12 rounded-2xl blur-lg"></div>
+      {/* Extra floating polygons */}
+      <div className="absolute top-1/6 left-1/3">
+        <div className="relative">
+          {/* Hexagon */}
+          <div className="w-14 h-14 bg-primary/10 transform rotate-6 animate-pulse"
+            style={{
+              clipPath: "polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)",
+              animationDuration: "5.5s",
+            }}
+          ></div>
+        </div>
+      </div>
+      <div className="absolute bottom-1/8 right-1/4">
+        <div className="relative">
+          {/* Triangle */}
+          <div className="w-10 h-10 bg-primary-glow/20 transform rotate-12 animate-bounce"
+            style={{
+              clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
+              animationDuration: "7.5s",
+            }}
+          ></div>
+        </div>
+      </div>
+      <div className="absolute top-1/8 right-1/6">
+        <div className="relative">
+          {/* Diamond */}
+          <div className="w-12 h-12 bg-primary/20 transform rotate-12 animate-pulse"
+            style={{
+              clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+              animationDuration: "8.5s",
+            }}
+          ></div>
+        </div>
+      </div>
 
       {/* Floating geometric elements */}
       <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -101,6 +143,25 @@ const GeometricBackground = () => {
       <div className="absolute top-2/3 left-1/3 w-1.5 h-1.5 bg-primary/40 rounded-full animate-ping" style={{ animationDuration: '3.2s' }}></div>
       <div className="absolute bottom-1/4 right-1/6 w-2 h-2 bg-primary-glow/35 rounded-full animate-ping" style={{ animationDuration: '6.8s' }}></div>
       <div className="absolute top-1/4 right-1/8 w-2 h-2 bg-primary/30 rounded-full animate-ping" style={{ animationDuration: '5.1s' }}></div>
+      {/* Even more random dots */}
+      <div className="absolute top-10 left-1/10 w-2 h-2 bg-primary/30 rounded-full animate-ping" style={{ animationDuration: '3.3s' }}></div>
+      <div className="absolute bottom-20 right-1/8 w-2.5 h-2.5 bg-primary-glow/20 rounded-full animate-ping" style={{ animationDuration: '4.9s' }}></div>
+      <div className="absolute top-1/8 right-1/3 w-1.5 h-1.5 bg-primary/40 rounded-full animate-ping" style={{ animationDuration: '5.3s' }}></div>
+      <div className="absolute bottom-1/10 left-1/4 w-2 h-2 bg-primary-glow/30 rounded-full animate-ping" style={{ animationDuration: '6.1s' }}></div>
+      <div className="absolute top-1/3 right-1/7 w-2 h-2 bg-primary/25 rounded-full animate-ping" style={{ animationDuration: '4.4s' }}></div>
+      <div className="absolute bottom-1/5 left-1/9 w-2.5 h-2.5 bg-primary-glow/35 rounded-full animate-ping" style={{ animationDuration: '5.6s' }}></div>
+      <div className="absolute top-1/7 left-1/8 w-1.5 h-1.5 bg-primary/30 rounded-full animate-ping" style={{ animationDuration: '3.6s' }}></div>
+      <div className="absolute bottom-1/9 right-1/10 w-2 h-2 bg-primary-glow/25 rounded-full animate-ping" style={{ animationDuration: '6.3s' }}></div>
+      {/* Dots towards the right */}
+      <div className="absolute top-12 right-8 w-2 h-2 bg-primary/40 rounded-full animate-ping" style={{ animationDuration: '4.1s' }}></div>
+      <div className="absolute top-24 right-16 w-2.5 h-2.5 bg-primary-glow/30 rounded-full animate-ping" style={{ animationDuration: '5.2s' }}></div>
+      <div className="absolute top-1/6 right-4 w-1.5 h-1.5 bg-primary/35 rounded-full animate-ping" style={{ animationDuration: '3.9s' }}></div>
+      <div className="absolute top-1/4 right-10 w-2 h-2 bg-primary-glow/25 rounded-full animate-ping" style={{ animationDuration: '6.4s' }}></div>
+      {/* Dots towards the top left */}
+      <div className="absolute top-8 left-8 w-2 h-2 bg-primary/30 rounded-full animate-ping" style={{ animationDuration: '4.3s' }}></div>
+      <div className="absolute top-16 left-12 w-2.5 h-2.5 bg-primary-glow/20 rounded-full animate-ping" style={{ animationDuration: '5.7s' }}></div>
+      <div className="absolute top-1/7 left-4 w-1.5 h-1.5 bg-primary/40 rounded-full animate-ping" style={{ animationDuration: '3.4s' }}></div>
+      <div className="absolute top-1/5 left-10 w-2 h-2 bg-primary-glow/30 rounded-full animate-ping" style={{ animationDuration: '6.6s' }}></div>
     </div>
   );
 };
