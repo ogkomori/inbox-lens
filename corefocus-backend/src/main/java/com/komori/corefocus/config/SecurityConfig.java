@@ -1,5 +1,6 @@
 package com.komori.corefocus.config;
 
+import com.komori.corefocus.security.CustomAuthenticationEntryPoint;
 import com.komori.corefocus.security.CustomAuthenticationSuccessHandler;
 import com.komori.corefocus.security.JwtRequestFilter;
 import lombok.RequiredArgsConstructor;
@@ -24,15 +25,18 @@ public class SecurityConfig {
     private final JwtRequestFilter jwtRequestFilter;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         return http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/profile/**", "/api/auth/logout").authenticated()
                         .anyRequest().permitAll())
                 .oauth2Login(login -> login.successHandler(successHandler))
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(customAuthenticationEntryPoint))
                 .build();
     }
 
