@@ -11,12 +11,14 @@ interface AuthContextType {
   loggedIn: boolean | null;
   user: User | null;
   refreshAuth: () => void;
+  authFetch: (input: RequestInfo, init?: RequestInit, retry?: boolean) => Promise<Response>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   loggedIn: null,
   user: null,
   refreshAuth: () => {},
+  authFetch: async () => { throw new Error("authFetch not initialized") },
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -39,6 +41,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const refreshData = await refreshRes.json().catch(() => ({}));
         console.log("[AuthContext] POST /api/auth/refresh response:", refreshData);
         if (refreshRes.status === 401) {
+          // Call logout endpoint to clear any server-side session/cookies
+          try {
+            await fetch(`${baseUrl}/api/auth/logout`, { method: "POST", credentials: "include" });
+          } catch (e) {
+            // Ignore errors from logout
+          }
           setLoggedIn(false);
           setUser(null);
           return;
@@ -78,12 +86,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Utility: fetch with auto-refresh if needed
+  const authFetch = async (input: RequestInfo, init?: RequestInit, retry = true): Promise<Response> => {
+    const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
+    let res = await fetch(input, { ...init, credentials: "include" });
+    if (res.status === 401 && retry) {
+      // Try to refresh
+      const refreshRes = await fetch(`${baseUrl}/api/auth/refresh`, { method: "POST", credentials: "include" });
+      if (refreshRes.status === 401) {
+        // Session expired, log out
+        try {
+          await fetch(`${baseUrl}/api/auth/logout`, { method: "POST", credentials: "include" });
+        } catch {}
+        setLoggedIn(false);
+        setUser(null);
+        toast({
+          title: "Session Expired",
+          description: "Please log in again.",
+          variant: "destructive"
+        });
+        return res;
+      }
+      // Retry original request once after refresh
+      res = await fetch(input, { ...init, credentials: "include" });
+    }
+    return res;
+  };
+
   useEffect(() => {
     fetchAuth();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ loggedIn, user, refreshAuth: fetchAuth }}>
+    <AuthContext.Provider value={{ loggedIn, user, refreshAuth: fetchAuth, authFetch }}>
       {loggedIn === null ? (
         <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-primary border-solid" aria-label="Loading authentication status"></div>

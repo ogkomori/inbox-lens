@@ -16,7 +16,7 @@ const DashboardNavigation = ({ user }: { user: User }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   // removed refreshUser, not needed
-  const { loggedIn } = useAuth();
+  const { loggedIn, authFetch } = useAuth();
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -72,10 +72,9 @@ const DashboardNavigation = ({ user }: { user: User }) => {
                   <button
                     className="block w-full text-left px-4 py-2 text-foreground hover:bg-secondary transition-colors"
                     onClick={() => {
-                      fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/logout`, { method: "POST", credentials: "include" })
+                      authFetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/logout`, { method: "POST" })
                         .then(() => {
                           localStorage.clear();
-      // removed refreshUser, not needed
                           window.location.href = "/";
                         });
                     }}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import GeometricBackground from "@/components/GeometricBackground";
@@ -19,17 +20,18 @@ const PreferredTime = () => {
   const [period, setPeriod] = useState("AM");
   const navigate = useNavigate();
 
+  const { authFetch } = useAuth();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const time24 = to24HourString(hour, minute, period);
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/profile/set-preferred-time`, {
+      const response = await authFetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/profile/set-preferred-time`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ preferredTime: time24 }),
-        credentials: "include", // <-- this sends cookies, including HttpOnly
       });
       if (!response.ok) {
         throw new Error("Failed to set preferred time");

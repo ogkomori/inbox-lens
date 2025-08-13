@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 
 
 const Navigation = () => {
-  const { loggedIn, refreshAuth } = useAuth();
+  const { loggedIn, refreshAuth, authFetch } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
@@ -61,7 +61,7 @@ const Navigation = () => {
                   <button
                     className="px-4 py-2 text-left hover:bg-muted"
                     onClick={() => {
-                      fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/logout`, { method: "POST", credentials: "include" })
+                      authFetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/logout`, { method: "POST" })
                         .then(() => {
                           window.location.href = "/";
                         });
@@ -97,7 +97,7 @@ const Navigation = () => {
                   <button
                     className="px-4 py-2 text-left hover:bg-muted"
                     onClick={() => {
-                      fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/logout`, { method: "POST", credentials: "include" })
+                      authFetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/logout`, { method: "POST" })
                         .then(() => {
                           localStorage.clear();
                           sessionStorage.clear();

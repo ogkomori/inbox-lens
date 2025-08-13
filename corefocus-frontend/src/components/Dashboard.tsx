@@ -9,9 +9,10 @@ import { useAuth } from "@/context/AuthContext";
 function useGmailAccessStatus(loggedIn: boolean | null) {
   const [accessGranted, setAccessGranted] = useState<boolean | null>(null);
   const prevLoggedIn = React.useRef<boolean | null>(null);
+  const { authFetch } = useAuth();
   useEffect(() => {
     if (loggedIn && prevLoggedIn.current !== true) {
-      fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/gmail/inbox-access-granted`, { credentials: "include" })
+      authFetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/gmail/inbox-access-granted`)
         .then(res => res.text())
         .then(text => setAccessGranted(text.trim() === "true"))
         .catch(() => setAccessGranted(false));
@@ -74,6 +75,27 @@ const Dashboard = () => {
 
   // Adjust this value to match the height of your MAIN navigation bar (e.g., 64 for 4rem)
   const mainNavHeight = 64;
+  const [lastMessage, setLastMessage] = useState<string | null>(null);
+  const [loadingMessage, setLoadingMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const { authFetch } = useAuth();
+  const handleGetLastMessage = async () => {
+    setLoadingMessage(true);
+    setErrorMessage(null);
+    setLastMessage(null);
+    try {
+      const res = await authFetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/gmail/get-last-message`);
+      if (!res.ok) throw new Error("Failed to fetch message");
+      const text = await res.text();
+      setLastMessage(text);
+    } catch (err: any) {
+      setErrorMessage(err.message || "Unknown error");
+    } finally {
+      setLoadingMessage(false);
+    }
+  };
+
   if (loggedIn === null || accessGranted === null) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -110,9 +132,40 @@ const Dashboard = () => {
         </div>
         {/* Latest Updates or Connect Gmail section */}
         {loggedIn && accessGranted ? (
-          <div className="bg-background/80 rounded-xl shadow p-8 flex flex-col items-center justify-center">
+          <div className="bg-background/80 rounded-xl shadow p-8 flex flex-col items-center justify-center w-full max-w-2xl mx-auto">
             <h2 className="text-2xl font-bold mb-4 text-primary">Latest Updates</h2>
-            <div className="text-muted-foreground text-lg">No new updates.</div>
+            <div className="text-muted-foreground text-lg mb-4">No new updates.</div>
+            {/* Only show the button if Gmail is connected */}
+            <button
+              className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/80 transition mb-4 flex items-center justify-center"
+              onClick={handleGetLastMessage}
+              disabled={loadingMessage}
+              aria-label="Get Last Gmail Message"
+            >
+              {loadingMessage ? (
+                <span className="flex items-center">
+                  <span className="animate-spin rounded-full h-5 w-5 border-t-2 border-white border-solid mr-2"></span>
+                  Loading...
+                </span>
+              ) : (
+                "Get Last Gmail Message"
+              )}
+            </button>
+            {errorMessage && (
+              <div className="text-red-500 mb-2">{errorMessage}</div>
+            )}
+            {loadingMessage && (
+              <div className="flex items-center justify-center my-2">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-primary border-solid mr-2"></div>
+                <span className="text-muted-foreground">Fetching message...</span>
+              </div>
+            )}
+            {lastMessage && !loadingMessage && (
+              <div className="w-full bg-secondary/30 rounded-lg p-4 mt-2 text-left shadow-inner">
+                <span className="font-semibold">Response:</span>
+                <div className="whitespace-pre-line mt-1 text-sm text-muted-foreground">{lastMessage}</div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="bg-background/80 rounded-xl shadow p-8 flex flex-col items-center justify-center">
