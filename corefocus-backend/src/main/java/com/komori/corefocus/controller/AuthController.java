@@ -3,6 +3,7 @@ package com.komori.corefocus.controller;
 import com.komori.corefocus.dto.CustomResponseBody;
 import com.komori.corefocus.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -54,7 +56,7 @@ public class AuthController {
     public ResponseEntity<?> refresh(@CookieValue(name = "jwt", required = false) String accessToken,
                                      @CookieValue(name = "refresh", required = false) String refreshToken) {
 
-        System.out.println("Attempting refresh");
+        log.info("Refreshing...");
         if (refreshToken == null && accessToken == null) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)

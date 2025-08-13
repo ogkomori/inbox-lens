@@ -3,6 +3,7 @@ package com.komori.corefocus.controller;
 import com.komori.corefocus.config.GmailClientProperties;
 import com.komori.corefocus.entity.UserEntity;
 import com.komori.corefocus.repository.UserRepository;
+import com.komori.corefocus.service.GmailMessageService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
 
+@SuppressWarnings("rawtypes")
 @Slf4j
 @RestController
 @RequestMapping("/api/gmail")
@@ -31,6 +33,7 @@ public class GmailController {
     private final UserRepository userRepository;
     private final GmailClientProperties clientProperties;
     private final RestTemplateBuilder restTemplateBuilder;
+    private final GmailMessageService gmailMessageService;
 
     @GetMapping("/auth-url")
     public void sendToAuthUrl(HttpServletResponse response) throws IOException {
@@ -127,5 +130,11 @@ public class GmailController {
                 .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
 
         return ResponseEntity.ok(user.getInboxAccessGranted());
+    }
+
+    @GetMapping("/get-last-message")
+    public ResponseEntity<?> getLastMessage(@CurrentSecurityContext(expression = "authentication?.name") String sub) throws IOException {
+        String params = gmailMessageService.getLastEmailMessage(sub);
+        return ResponseEntity.ok(params);
     }
 }

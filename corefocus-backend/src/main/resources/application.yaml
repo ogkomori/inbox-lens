@@ -49,4 +49,8 @@ jwt:
 
 logging:
   level:
-    org.springframework.security: DEBUG
+    org.springframework.security: debug
+
+open:
+  api:
+    key: ${OPEN_API_KEY}
