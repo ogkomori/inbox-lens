@@ -17,7 +17,7 @@ CoreFocus is a secure web application that connects to a user’s Gmail inbox vi
 ## Tech Stack
 
 - Backend: Spring Boot with Spring Security OAuth2 Client  
-- Frontend: HTML, CSS, JS (Thymeleaf)
+- Frontend: TypeScript (React)
 - Database: PostgreSQL  
 - AI: OpenAI API for email summarization  
 - Gmail API for email access and push notifications  
