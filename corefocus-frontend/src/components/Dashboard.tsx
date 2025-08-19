@@ -63,37 +63,78 @@ const tiles = [
 
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, loggedIn, authFetch, refreshAuth } = useAuth();
   const { accessGranted } = useGmailAccess();
-  const { loggedIn } = useAuth();
+
+  // Strict login check: GET /me, if fails refresh, if refresh fails logout, if second /me fails logout
+  const strictLoginCheck = async () => {
+    const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
+    let res = await fetch(`${baseUrl}/api/profile/me`, { credentials: "include" });
+    let data = await res.json().catch(() => ({}));
+    if (res.status === 401 || data.success === false) {
+      // Try refresh
+      const refreshRes = await fetch(`${baseUrl}/api/auth/refresh`, { method: "POST", credentials: "include" });
+      if (refreshRes.status === 401) {
+        // Logout
+        await fetch(`${baseUrl}/api/auth/logout`, { method: "POST", credentials: "include" });
+        return false;
+      }
+      // Try /me again
+      res = await fetch(`${baseUrl}/api/profile/me`, { credentials: "include" });
+      data = await res.json().catch(() => ({}));
+      if (res.status === 401 || data.success === false) {
+        await fetch(`${baseUrl}/api/auth/logout`, { method: "POST", credentials: "include" });
+        return false;
+      }
+    }
+    return true;
+  };
+
+  // For resource access (e.g. on mount or before rendering sensitive UI)
+  // You can call strictLoginCheck() and redirect or show login if false
+
+  // For sensitive actions: always refresh first, logout if fails
+  const requireFreshLogin = async (action: () => void | Promise<void>, failMsg = "You must be logged in.") => {
+    const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
+    const refreshRes = await fetch(`${baseUrl}/api/auth/refresh`, { method: "POST", credentials: "include" });
+    if (refreshRes.status === 401) {
+      await fetch(`${baseUrl}/api/auth/logout`, { method: "POST", credentials: "include" });
+      alert(failMsg);
+      return;
+    }
+    await action();
+  };
 
   const handleConnectGmail = () => {
-    window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/api/gmail/auth-url`;
+    requireFreshLogin(() => {
+      window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/api/gmail/auth-url`;
+    }, "You must be logged in to connect your Gmail inbox.");
   };
 
   // Remove redirect logic from Dashboard, now handled by ProtectedRoute
 
   // Adjust this value to match the height of your MAIN navigation bar (e.g., 64 for 4rem)
   const mainNavHeight = 64;
-  const [lastMessage, setLastMessage] = useState<string | null>(null);
-  const [loadingMessage, setLoadingMessage] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [summarizeStatus, setSummarizeStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
-  const { authFetch } = useAuth();
-  const handleGetLastMessage = async () => {
-    setLoadingMessage(true);
-    setErrorMessage(null);
-    setLastMessage(null);
-    try {
-      const res = await authFetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/gmail/get-last-message`);
-      if (!res.ok) throw new Error("Failed to fetch message");
-      const text = await res.text();
-      setLastMessage(text);
-    } catch (err: any) {
-      setErrorMessage(err.message || "Unknown error");
-    } finally {
-      setLoadingMessage(false);
-    }
+  const handleSummarize = () => {
+    requireFreshLogin(async () => {
+      setSummarizeStatus("loading");
+      try {
+        const res = await authFetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/gmail/summarize-emails`);
+        if (res.status === 401) {
+          setSummarizeStatus("error");
+          return;
+        }
+        if (!res.ok) {
+          setSummarizeStatus("error");
+        } else {
+          setSummarizeStatus("success");
+        }
+      } catch {
+        setSummarizeStatus("error");
+      }
+    }, "You must be logged in to summarize.");
   };
 
   if (loggedIn === null || accessGranted === null) {
@@ -138,33 +179,24 @@ const Dashboard = () => {
             {/* Only show the button if Gmail is connected */}
             <button
               className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/80 transition mb-4 flex items-center justify-center"
-              onClick={handleGetLastMessage}
-              disabled={loadingMessage}
-              aria-label="Get Last Gmail Message"
+              onClick={handleSummarize}
+              disabled={summarizeStatus === "loading"}
+              aria-label="Summarize"
             >
-              {loadingMessage ? (
+              {summarizeStatus === "loading" ? (
                 <span className="flex items-center">
                   <span className="animate-spin rounded-full h-5 w-5 border-t-2 border-white border-solid mr-2"></span>
-                  Loading...
+                  Summarizing...
                 </span>
               ) : (
-                "Get Last Gmail Message"
+                "Summarize"
               )}
             </button>
-            {errorMessage && (
-              <div className="text-red-500 mb-2">{errorMessage}</div>
+            {summarizeStatus === "success" && (
+              <div className="text-green-600 mb-2">Summarization Mail sent.</div>
             )}
-            {loadingMessage && (
-              <div className="flex items-center justify-center my-2">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-primary border-solid mr-2"></div>
-                <span className="text-muted-foreground">Fetching message...</span>
-              </div>
-            )}
-            {lastMessage && !loadingMessage && (
-              <div className="w-full bg-secondary/30 rounded-lg p-4 mt-2 text-left shadow-inner">
-                <span className="font-semibold">Response:</span>
-                <div className="whitespace-pre-line mt-1 text-sm text-muted-foreground">{lastMessage}</div>
-              </div>
+            {summarizeStatus === "error" && (
+              <div className="text-red-500 mb-2">error</div>
             )}
           </div>
         ) : (
