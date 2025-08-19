@@ -2,8 +2,9 @@ package com.komori.corefocus.controller;
 
 import com.komori.corefocus.config.GmailClientProperties;
 import com.komori.corefocus.entity.UserEntity;
+import com.komori.corefocus.exception.RedirectFailedException;
 import com.komori.corefocus.repository.UserRepository;
-import com.komori.corefocus.service.GmailMessageService;
+import com.komori.corefocus.service.GmailService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,10 +34,10 @@ public class GmailController {
     private final UserRepository userRepository;
     private final GmailClientProperties clientProperties;
     private final RestTemplateBuilder restTemplateBuilder;
-    private final GmailMessageService gmailMessageService;
+    private final GmailService gmailService;
 
     @GetMapping("/auth-url")
-    public void sendToAuthUrl(HttpServletResponse response) throws IOException {
+    public void sendToAuthUrl(HttpServletResponse response) {
         String url = UriComponentsBuilder.fromUriString(clientProperties.getAuth_uri())
                 .queryParam("client_id", clientProperties.getClient_id())
                 .queryParam("redirect_uri", clientProperties.getRedirect_uri())
@@ -45,13 +46,18 @@ public class GmailController {
                 .queryParam("access_type", "offline")
                 .queryParam("prompt", "consent")
                 .build().toUriString();
-        response.sendRedirect(url);
+
+        try {
+            response.sendRedirect(url);
+        } catch (IOException e) {
+            throw new RedirectFailedException("Redirect failed for: " + url);
+        }
     }
 
     @GetMapping("/oauth2/callback")
     public void handleCallback(@RequestParam(name = "code") String code,
                                @CurrentSecurityContext(expression = "authentication?.name") String sub,
-                               HttpServletResponse servletResponse) throws IOException {
+                               HttpServletResponse servletResponse) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -89,7 +95,12 @@ public class GmailController {
             userRepository.save(user);
         }
 
-        servletResponse.sendRedirect("http://localhost:5173/dashboard");
+        String dashboardUrl = "http://localhost:5173/dashboard";
+        try {
+            servletResponse.sendRedirect(dashboardUrl);
+        } catch (IOException e) {
+            throw new RedirectFailedException("Redirect failed for: " + dashboardUrl);
+        }
     }
 
     @PostMapping("/token/refresh")
@@ -122,19 +133,15 @@ public class GmailController {
 
     @GetMapping("/inbox-access-granted")
     public ResponseEntity<Boolean> inboxAccessGranted(@CurrentSecurityContext(expression = "authentication?.name") String sub) {
-        if (sub == null) {
-            return ResponseEntity.ok(false);
-        }
-
         UserEntity user = userRepository.findBySub(sub)
                 .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
 
         return ResponseEntity.ok(user.getInboxAccessGranted());
     }
 
-    @GetMapping("/get-last-message")
-    public ResponseEntity<?> getLastMessage(@CurrentSecurityContext(expression = "authentication?.name") String sub) throws IOException {
-        String params = gmailMessageService.getLastEmailMessage(sub);
-        return ResponseEntity.ok(params);
+    @GetMapping("/summarize-emails")
+    public ResponseEntity<?> summarizeEmails(@CurrentSecurityContext(expression = "authentication?.name") String sub) {
+        gmailService.getFinalSummary(sub);
+        return ResponseEntity.ok("Email sent successfully");
     }
 }

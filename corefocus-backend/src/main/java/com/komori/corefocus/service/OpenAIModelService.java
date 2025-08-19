@@ -1,12 +1,13 @@
 package com.komori.corefocus.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.komori.corefocus.dto.OpenAIPrompt;
-import com.komori.corefocus.dto.RoleAndContent;
+import com.komori.corefocus.dto.*;
+import com.komori.corefocus.exception.OpenAIException;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -14,15 +15,32 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OpenAIModelService {
-    private static final Logger log = LoggerFactory.getLogger(OpenAIModelService.class);
+    private final String summaryPrompt;
     private final WebClient webClient;
 
-    public String sendPrompt(String userPrompt) {
-        OpenAIPrompt prompt = PromptBuilder.buildPrompt(userPrompt);
+    public EmailSummary sendEmailSummaryPrompt(List<GmailMessageParameters> parametersList) {
+        OpenAIPrompt prompt = new OpenAIPrompt(
+                "gpt-5-nano",
+                List.of(new RoleAndContent(
+                        "system",
+                        summaryPrompt
+                ), new RoleAndContent("user", parametersList)),
+                1);
+        String modelResponse = sendPrompt(prompt);
 
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(modelResponse, EmailSummary.class);
+        } catch (JsonProcessingException e) {
+            throw new OpenAIException("Error converting JSON with ObjectMapper");
+        }
+    }
+
+    private String sendPrompt(OpenAIPrompt prompt) {
         String res = webClient
                     .post()
                     .bodyValue(prompt)
@@ -30,7 +48,7 @@ public class OpenAIModelService {
                     .onStatus(HttpStatusCode::isError, response ->
                             response.bodyToMono(String.class).flatMap(errorBody -> {
                                 log.error("OpenAI response: {}", errorBody);
-                                return Mono.error(new RuntimeException("OpenAI Error: " + errorBody));
+                                return Mono.error(new OpenAIException("OpenAI Error: " + errorBody));
                             })
                     )
                     .bodyToMono(String.class)
@@ -43,24 +61,8 @@ public class OpenAIModelService {
                     .get("message").getAsJsonObject()
                     .get("content").getAsString();
         }
-
-        return null;
-    }
-
-
-    private static class PromptBuilder {
-        public static OpenAIPrompt buildPrompt(String userPrompt) {
-            return new OpenAIPrompt(
-                    "gpt-4o",
-                    List.of(new RoleAndContent(
-                            "system",
-                            """
-                            You are a professional email assistant.
-                            You will receive an email with Subject, Body, From, and Date.
-                            Your only task is to return a 1 or 2 line summary of the email.
-                            """
-                    ), new RoleAndContent("user", userPrompt)),
-                    0.0);
+        else {
+            throw new OpenAIException("Model response is null");
         }
     }
 }
