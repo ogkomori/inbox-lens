@@ -5,15 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GmailMessageParams {
-    private String subject;
-    private String from;
-    private String body;
-    private LocalDate date;
+public class EmailStats {
+    private Integer total;
+    private Integer promotions;
+    private Integer updates;
+    private Integer social;
+    private Integer forums;
+    private Integer personal;
 }
