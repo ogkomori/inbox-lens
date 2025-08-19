@@ -23,7 +23,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         String path = request.getServletPath();
-        if (path.startsWith("/oauth2/") || path.equals("/")) {
+        if (path.startsWith("/oauth2/") || path.startsWith("/swagger-ui/") || path.startsWith("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -39,7 +39,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // If not found in header, check cookies
         if (jwt == null) {
-            jwt = jwtUtil.extractTokenFromCookie(request, "jwt");
+            jwt = jwtUtil.extractTokenFromCookie(request, "access");
         }
 
         // Validate the JWT, extract email, and set Security Context if user isn't already authenticated

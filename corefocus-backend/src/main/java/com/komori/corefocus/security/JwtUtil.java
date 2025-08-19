@@ -9,9 +9,11 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,18 +25,38 @@ public class JwtUtil {
     private String STORED_SECRET_KEY;
     private final UserRepository userRepository;
 
-    public String generateAccessToken(String sub) {
+    public ResponseCookie createAccessTokenCookie(String sub) {
+        return ResponseCookie.from("access", generateAccessToken(sub))
+                .httpOnly(true)
+                .path("/")
+                .secure(true)
+                .maxAge(Duration.ofMinutes(5))
+                .sameSite("None")
+                .build();
+    }
+
+    public ResponseCookie createRefreshTokenCookie(String sub) {
+        return ResponseCookie.from("refresh", generateRefreshToken(sub))
+                .httpOnly(true)
+                .path("/")
+                .secure(true)
+                .maxAge(Duration.ofDays(14))
+                .sameSite("None")
+                .build();
+    }
+
+    private String generateAccessToken(String sub) {
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder()
                 .claims(claims)
                 .subject(sub)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60)) // 1 min expiration
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 5)) // 5 min expiration
                 .signWith(Keys.hmacShaKeyFor(STORED_SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
                 .compact();
     }
 
-    public String generateRefreshToken(String sub) {
+    private String generateRefreshToken(String sub) {
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder()
                 .claims(claims)

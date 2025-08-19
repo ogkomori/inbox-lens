@@ -10,7 +10,6 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -56,7 +55,6 @@ public class AuthController {
     public ResponseEntity<?> refresh(@CookieValue(name = "jwt", required = false) String accessToken,
                                      @CookieValue(name = "refresh", required = false) String refreshToken) {
 
-        log.info("Refreshing...");
         if (refreshToken == null && accessToken == null) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
@@ -91,21 +89,8 @@ public class AuthController {
         }
 
         String sub = jwtUtil.extractSubFromToken(refreshToken);
-        ResponseCookie refreshCookie = ResponseCookie.from("refresh", jwtUtil.generateRefreshToken(sub))
-                .httpOnly(true)
-                .path("/")
-                .secure(true)
-                .maxAge(Duration.ofDays(14))
-                .sameSite("None")
-                .build();
-
-        ResponseCookie accessCookie = ResponseCookie.from("jwt", jwtUtil.generateAccessToken(sub))
-                .httpOnly(true)
-                .path("/")
-                .secure(true)
-                .maxAge(Duration.ofMinutes(1))
-                .sameSite("None")
-                .build();
+        ResponseCookie refreshCookie = jwtUtil.createRefreshTokenCookie(sub);
+        ResponseCookie accessCookie = jwtUtil.createAccessTokenCookie(sub);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
