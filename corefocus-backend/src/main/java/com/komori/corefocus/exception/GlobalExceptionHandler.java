@@ -17,7 +17,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<Object> usernameNotFound(UsernameNotFoundException e) {
-        return buildResponse(HttpStatus.BAD_REQUEST, e);
+        return buildResponse(HttpStatus.UNAUTHORIZED, e);
     }
 
     @ExceptionHandler(JwtException.class)
