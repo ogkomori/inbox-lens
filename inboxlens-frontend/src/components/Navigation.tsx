@@ -8,7 +8,11 @@ import { FaUserCircle } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 
 
-const Navigation = () => {
+interface NavigationProps {
+  onContactClick?: () => void;
+}
+
+const Navigation: React.FC<NavigationProps> = ({ onContactClick }) => {
   const { loggedIn, refreshAuth, authFetch } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -21,12 +25,12 @@ const Navigation = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="font-bold text-2xl bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-          CoreFocus
+          InboxLens
         </div>
         
         <div className="hidden md:flex items-center space-x-8">
           <button 
-            onClick={() => scrollToSection('home')}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="text-foreground hover:text-primary transition-colors"
           >
             Home
@@ -38,7 +42,7 @@ const Navigation = () => {
             About
           </button>
           <button 
-            onClick={() => scrollToSection('contact')}
+            onClick={onContactClick}
             className="text-foreground hover:text-primary transition-colors"
           >
             Contact

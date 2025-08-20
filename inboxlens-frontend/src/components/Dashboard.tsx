@@ -2,6 +2,9 @@ import GeometricBackground from "@/components/GeometricBackground";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import DashboardNavigation from "@/components/DashboardNavigation";
 import React, { useEffect, useState, createContext, useContext } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import { useLocation } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 
 import { useAuth } from "@/context/AuthContext";
 
@@ -64,6 +67,21 @@ const tiles = [
 
 const Dashboard = () => {
   const { user, loggedIn, authFetch, refreshAuth } = useAuth();
+  const location = useLocation();
+  usePageTitle();
+
+  // Show toast if preferredTime was just set
+  useEffect(() => {
+    if (location.state && location.state.preferredTime) {
+      toast({
+        title: "Preferred Time Set!",
+        description: `Your preferred time is now set to ${location.state.preferredTime}.`,
+        variant: "default"
+      });
+      // Remove state so it doesn't show again on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
   const { accessGranted } = useGmailAccess();
 
   // Strict login check: GET /me, if fails refresh, if refresh fails logout, if second /me fails logout
@@ -138,6 +156,7 @@ const Dashboard = () => {
   };
 
   if (loggedIn === null || accessGranted === null) {
+    // No navbars or dashboard nav on loading
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-primary border-solid mb-4" aria-label="Loading dashboard"></div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuth } from "@/context/AuthContext";
 import GeometricBackground from "@/components/GeometricBackground";
 import DashboardNavigation from "@/components/DashboardNavigation";
@@ -20,6 +21,7 @@ const Applications = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const { loggedIn } = useAuth();
+  usePageTitle();
 
   useEffect(() => {
     // Simulate fetch for demo; replace with real API call
@@ -30,6 +32,7 @@ const Applications = () => {
   }, []);
 
   if (loggedIn === null || loading) {
+    // No navbars or dashboard nav on loading
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-primary border-solid mb-4" aria-label="Loading applications"></div>
@@ -42,21 +45,21 @@ const Applications = () => {
     <div className="min-h-screen bg-background relative">
       <GeometricBackground />
       <DashboardNavigation user={{ name: "", email: "", avatar: "" }} />
-      <main className="container mx-auto px-4 pt-24 flex gap-20 relative z-10">
+      <main className="container mx-auto px-2 md:px-4 pt-24 flex flex-col lg:flex-row gap-10 md:gap-20 relative z-10">
         {/* Table Section */}
         <section className="flex-1 max-w-4xl">
-          <div className="mb-12 flex items-center">
+          <div className="mb-8 flex items-center">
             <a href="/dashboard">
               <button className="bg-primary text-white px-6 py-2 rounded shadow hover:bg-primary/80 transition font-semibold" aria-label="Back to Dashboard">← Back to Dashboard</button>
             </a>
           </div>
-          <h1 className="text-4xl font-bold mb-8 text-foreground poppins-bold">Applications</h1>
-          <div className="bg-card rounded-xl shadow p-6">
-            <table className="w-full text-left border-collapse mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold mb-8 text-foreground poppins-bold">Applications</h1>
+          <div className="bg-card rounded-xl shadow p-4 md:p-6">
+            <table className="w-full text-left border-collapse mb-4 text-sm md:text-base">
               <thead>
                 <tr>
                   {columns.map(col => (
-                    <th key={col} className="py-2 px-4 border-b font-semibold text-muted-foreground">{col}</th>
+                    <th key={col} className="py-2 px-2 md:px-4 border-b font-semibold text-muted-foreground">{col}</th>
                   ))}
                 </tr>
               </thead>
@@ -70,11 +73,11 @@ const Applications = () => {
                 ) : (
                   rows.map((row, idx) => (
                     <tr key={idx} className="hover:bg-muted/30">
-                      <td className="py-2 px-4 border-b">{row.sn}</td>
-                      <td className="py-2 px-4 border-b">{row.role}</td>
-                      <td className="py-2 px-4 border-b">{row.company}</td>
-                      <td className="py-2 px-4 border-b">{row.status}</td>
-                      <td className="py-2 px-4 border-b">{row.updated}</td>
+                      <td className="py-2 px-2 md:px-4 border-b">{row.sn}</td>
+                      <td className="py-2 px-2 md:px-4 border-b">{row.role}</td>
+                      <td className="py-2 px-2 md:px-4 border-b">{row.company}</td>
+                      <td className="py-2 px-2 md:px-4 border-b">{row.status}</td>
+                      <td className="py-2 px-2 md:px-4 border-b">{row.updated}</td>
                     </tr>
                   ))
                 )}
@@ -90,10 +93,10 @@ const Applications = () => {
           </div>
         </section>
         {/* AI Insights Section */}
-        <aside className="w-[28rem] flex flex-col gap-6 pt-8">
+        <aside className="w-full lg:w-[28rem] flex flex-col gap-6 pt-8">
           {aiTiles.map(tile => (
-            <div key={tile.title} className="bg-card rounded-xl shadow p-6">
-              <h2 className="text-xl font-bold mb-2 text-primary poppins-bold">{tile.title}</h2>
+            <div key={tile.title} className="bg-card rounded-xl shadow p-4 md:p-6">
+              <h2 className="text-lg md:text-xl font-bold mb-2 text-primary poppins-bold">{tile.title}</h2>
               <p className="text-muted-foreground poppins-regular">{tile.description}</p>
             </div>
           ))}

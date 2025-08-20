@@ -14,7 +14,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     }
   }, [loggedIn]);
 
+
   if (loggedIn === null) {
+    // No navbar or dashboard nav on loading page
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-primary border-solid mb-4" aria-label="Loading authentication status"></div>
@@ -24,6 +26,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (loggedIn === false) {
+    // No navbar or dashboard nav on redirect page
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-primary border-solid mb-4" aria-label="Redirecting to login"></div>

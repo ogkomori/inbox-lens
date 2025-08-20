@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null);
       toast({
         title: "Authentication Error",
-        description: "Could not verify your session. Please log in again.",
+  description: "Could not verify your session. Please log in.",
         variant: "destructive"
       });
     }
@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(null);
         toast({
           title: "Session Expired",
-          description: "Please log in again.",
+          description: "Please log in.",
           variant: "destructive"
         });
         return res;

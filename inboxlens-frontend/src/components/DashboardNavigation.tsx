@@ -37,7 +37,7 @@ const DashboardNavigation = ({ user }: { user: User }) => {
           onClick={() => navigate("/")}
           aria-label="Go to homepage"
         >
-          CoreFocus
+          InboxLens
         </button>
         <div className="flex items-center gap-4">
           <ThemeToggle />

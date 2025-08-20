@@ -37,8 +37,7 @@ const PreferredTime = () => {
         throw new Error("Failed to set preferred time");
       }
       // Optionally handle response data here
-      alert(`Preferred time set to: ${time24}`);
-      navigate("/dashboard");
+  navigate("/dashboard", { state: { preferredTime: time24 } });
     } catch (error) {
       alert("Error: " + (error instanceof Error ? error.message : "Unknown error"));
     }
@@ -56,7 +55,7 @@ const PreferredTime = () => {
             onClick={() => navigate("/")}
             aria-label="Go to homepage"
           >
-            CoreFocus
+            InboxLens
           </button>
         </div>
       </nav>

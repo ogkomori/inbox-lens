@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const ContactSection = () => {
   return (
-    <section id="contact" className="py-20 bg-background relative">
+  <section id="contact" className="bg-background relative min-h-screen h-screen flex items-center">
       <GeometricBackground />
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
@@ -24,19 +24,11 @@ const ContactSection = () => {
               <CardTitle className="text-2xl text-center">Contact Us</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">
-                    First Name
-                  </label>
-                  <Input placeholder="Your first name" />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">
-                    Last Name
-                  </label>
-                  <Input placeholder="Your last name" />
-                </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-2 block">
+                  Name
+                </label>
+                <Input placeholder="Your name" />
               </div>
               
               <div>
@@ -51,8 +43,9 @@ const ContactSection = () => {
                   Message
                 </label>
                 <Textarea 
-                  placeholder="Tell us how we can help you..."
-                  className="min-h-[120px]"
+                  placeholder="Your message..."
+                  className="min-h-[48px] max-h-[72px]"
+                  rows={3}
                 />
               </div>
               

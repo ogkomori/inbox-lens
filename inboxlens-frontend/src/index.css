@@ -40,7 +40,7 @@ All colors MUST be HSL.
     --input: 240 5.9% 90%;
     --ring: 142 76% 36%;
 
-    /* Custom CoreFocus green theme */
+  /* Custom InboxLens green theme */
     --gradient-primary: linear-gradient(135deg, hsl(142 76% 36%), hsl(120 73% 45%));
     --gradient-subtle: linear-gradient(180deg, hsl(0 0% 98%), hsl(142 15% 97%));
     --shadow-elegant: 0 10px 30px -10px hsl(142 76% 36% / 0.3);

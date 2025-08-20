@@ -1,36 +1,35 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import GeometricBackground from "@/components/GeometricBackground";
 
-const AboutSection = () => {
-  const features = [
-    {
-      title: "Intuitive Design",
-      description: "Clean and modern interface that makes complex tasks simple and enjoyable."
-    },
-    {
-      title: "Powerful Features",
-      description: "Advanced tools and capabilities to handle your most demanding workflows."
-    },
-    {
-      title: "Seamless Integration",
-      description: "Connect with your favorite tools and services for a unified experience."
-    }
-  ];
+const features = [
+  {
+    title: "Highlights Actionable Emails",
+    description: "Automatically identifies emails that require your attention and action, helping you focus on what's important."
+  },
+  {
+    title: "Smart Summaries",
+    description: "Get quick, digestible summaries of important information without reading through entire email threads."
+  },
+  {
+    title: "Intelligent Insights",
+    description: "Provides smart insights and context to help you stay on top of your inbox and never miss critical communications."
+  }
+];
 
+const AboutSection = () => {
   return (
-    <section id="about" className="py-20 bg-secondary/20 relative">
+  <section id="about" className="py-36 min-h-[90vh] relative flex-1 flex flex-col justify-center bg-gradient-to-br from-background to-secondary/30">
       <GeometricBackground />
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
-            About CoreFocus
+            How InboxLens Works
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            We're dedicated to creating tools that empower individuals and teams to achieve more. 
-            CoreFocus is built with modern technology and designed for the way you work.
+            Three powerful features that transform how you manage your email
           </p>
         </div>
-
         <div className="grid md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <Card key={index} className="border-border/50 hover:shadow-lg transition-shadow">
@@ -46,9 +45,6 @@ const AboutSection = () => {
           ))}
         </div>
       </div>
-      
-      {/* Section divider */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
     </section>
   );
 };
