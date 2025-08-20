@@ -1,0 +1,11 @@
+services:
+  postgres:
+    image: "postgres:latest"
+    container_name: "inboxlens"
+    environment:
+      - "POSTGRES_DB=inboxlens"
+      - "POSTGRES_PASSWORD=inboxlens"
+      - "POSTGRES_USER=tega"
+    ports:
+      - "5432:5432"
+    restart: on-failure

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome to InboxLens!</title>
+    <style type="text/css">
+        body, table, td, p, a {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        table {
+            border-collapse: collapse !important;
+        }
+        img {
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .header {
+            background-color: #22c55e;
+            color: #fff;
+            padding: 24px 25px 10px 25px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: left;
+        }
+        .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .subheader {
+            background-color: #22c55e;
+            color: #fff;
+            padding: 0 25px 20px 25px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 16px;
+        }
+        .section-title {
+            color: #333;
+            font-size: 18px;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 18px 25px 0 25px;
+        }
+        .section-content {
+            color: #555;
+            font-size: 15px;
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 0 25px 18px 25px;
+        }
+        .cta-row {
+            padding: 0 25px 24px 25px;
+        }
+        .cta-button {
+            background: #22c55e;
+            color: #fff !important;
+            font-family: Arial, Helvetica, sans-serif;
+            font-weight: 700;
+            padding: 14px 40px;
+            border-radius: 24px;
+            text-decoration: none !important;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            min-width: 180px;
+            text-align: center;
+            border: none;
+            box-shadow: 0 2px 8px rgba(20, 255, 120, 0.10);
+        }
+        .footer {
+            background-color: #f4f4f7;
+            color: #999;
+            font-size: 12px;
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 16px 25px;
+            text-align: left;
+        }
+        @media only screen and (max-width: 600px) {
+            .container, .header, .subheader, .section-title, .section-content, .footer, .cta-row {
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+            }
+            .header {
+                font-size: 20px !important;
+            }
+            .section-title {
+                font-size: 16px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+            <tr>
+                <td class="header">
+                    <img src="https://inboxlens.app/favicon.ico" alt="InboxLens Logo" class="logo">
+                    Welcome to InboxLens!
+                </td>
+            </tr>
+            <tr>
+                <td class="section-title">Hello <span th:text="${username}">User</span> 👋</td>
+            </tr>
+            <tr>
+                <td class="section-content">
+                    We’re excited to have you join our productivity community!<br><br>
+                    InboxLens helps you streamline your workflow, stay organized, and achieve your goals with a clean, modern interface and powerful features.<br><br>
+                    Ready to get started?
+                </td>
+            </tr>
+            <tr>
+                <td class="cta-row" align="center">
+                    <a href="http://localhost:5173/dashboard" class="cta-button">Go to Dashboard</a>
+                </td>
+            </tr>
+        </table>
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+            <tr>
+                <td class="footer">
+                    If you have any questions, just reply to this email.<br>
+                    &copy; 2025 InboxLens. All rights reserved.
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
