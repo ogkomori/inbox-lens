@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
 import GeometricBackground from "@/components/GeometricBackground";
 
 const hours = Array.from({ length: 12 }, (_, i) => i + 1);
@@ -36,8 +37,16 @@ const PreferredTime = () => {
       if (!response.ok) {
         throw new Error("Failed to set preferred time");
       }
+      // Show green toast on success
+      toast({
+        title: "Preferred time set!",
+        description: `Your preferred time is set to ${time24}.`,
+        className: "bg-green-500 text-white",
+      });
       // Optionally handle response data here
-  navigate("/dashboard", { state: { preferredTime: time24 } });
+      setTimeout(() => {
+        navigate("/dashboard", { state: { preferredTime: time24 } });
+      }, 1200);
     } catch (error) {
       alert("Error: " + (error instanceof Error ? error.message : "Unknown error"));
     }

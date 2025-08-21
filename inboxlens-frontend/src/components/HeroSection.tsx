@@ -7,10 +7,15 @@ import { useAuth } from "@/context/AuthContext";
 const HeroSection = () => {
   const { loggedIn } = useAuth();
 
-  // Adjust this value to match the height of your MAIN navigation bar (e.g., 64 for 4rem)
-  const mainNavHeight = 64;
+  // Adjust this value to match the height of your MAIN navigation bar (e.g., 64px for 4rem)
+  const mainNavHeight = 64; // px
+  // Use inline style to ensure the hero section fills the remaining viewport height below the navbar
   return (
-  <section id="home" className="min-h-[calc(100vh-4rem)] pt-16 flex items-center justify-center bg-gradient-to-br from-background to-secondary/30 relative">
+  <section
+    id="home"
+    style={{ minHeight: `calc(100vh - ${mainNavHeight}px)`, marginTop: `${mainNavHeight}px` }}
+    className="flex items-center justify-center bg-gradient-to-br from-background to-secondary/30 relative"
+  >
     <GeometricBackground topOffset={mainNavHeight} />
     <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center justify-center h-full relative z-10 -mt-32 gap-12">
       {/* Left: Text and buttons */}

@@ -1,3 +1,5 @@
+import Footer from "@/components/Footer";
+import ContactModal from "@/components/ContactModal";
 import GeometricBackground from "@/components/GeometricBackground";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import DashboardNavigation from "@/components/DashboardNavigation";
@@ -5,32 +7,50 @@ import React, { useEffect, useState, createContext, useContext } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useLocation } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
-
 import { useAuth } from "@/context/AuthContext";
 
-// Custom hook for Gmail access status
+// Custom hook for Gmail access status and user info, stale-while-revalidate
 function useGmailAccessStatus(loggedIn: boolean | null) {
   const [accessGranted, setAccessGranted] = useState<boolean | null>(null);
-  const prevLoggedIn = React.useRef<boolean | null>(null);
+  const [userInfo, setUserInfo] = useState<any>(null);
   const { authFetch } = useAuth();
   useEffect(() => {
-    if (loggedIn && prevLoggedIn.current !== true) {
-      authFetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/gmail/inbox-access-granted`)
-        .then(res => res.text())
-        .then(text => setAccessGranted(text.trim() === "true"))
-        .catch(() => setAccessGranted(false));
-    } else if (!loggedIn) {
+    if (!loggedIn) {
       setAccessGranted(null);
+      setUserInfo(null);
+      sessionStorage.removeItem('dashboardUserInfo');
+      sessionStorage.removeItem('dashboardGmailAccess');
+      return;
     }
-    prevLoggedIn.current = loggedIn;
+    // Show cache immediately if available
+    const cachedUser = sessionStorage.getItem('dashboardUserInfo');
+    const cachedAccess = sessionStorage.getItem('dashboardGmailAccess');
+    if (cachedUser && cachedAccess) {
+      setUserInfo(JSON.parse(cachedUser));
+      setAccessGranted(cachedAccess === 'true');
+    }
+    // Always revalidate in background
+    Promise.all([
+      authFetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/profile/me`).then(res => res.json()),
+      authFetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/gmail/inbox-access-granted`).then(res => res.text())
+    ]).then(([user, access]) => {
+      setUserInfo(user);
+      setAccessGranted(access.trim() === 'true');
+      sessionStorage.setItem('dashboardUserInfo', JSON.stringify(user));
+      sessionStorage.setItem('dashboardGmailAccess', access.trim() === 'true' ? 'true' : 'false');
+    }).catch(() => {
+      setUserInfo(null);
+      setAccessGranted(false);
+    });
   }, [loggedIn]);
-  return { accessGranted, setAccessGranted };
+  return { accessGranted, setAccessGranted, userInfo };
 }
 
 // Context for Gmail inbox access
-const GmailAccessContext = createContext<{ accessGranted: boolean | null; setAccessGranted: (v: boolean) => void } | undefined>(undefined);
+type GmailAccessContextType = { accessGranted: boolean | null; setAccessGranted: (v: boolean) => void; userInfo: any };
+const GmailAccessContext = createContext<GmailAccessContextType | undefined>(undefined);
 
-export const useGmailAccess = () => {
+export const useGmailAccess = (): GmailAccessContextType => {
   const ctx = useContext(GmailAccessContext);
   if (!ctx) throw new Error("useGmailAccess must be used within GmailAccessProvider");
   return ctx;
@@ -38,9 +58,9 @@ export const useGmailAccess = () => {
 
 export const GmailAccessProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { loggedIn } = useAuth();
-  const { accessGranted, setAccessGranted } = useGmailAccessStatus(loggedIn);
+  const { accessGranted, setAccessGranted, userInfo } = useGmailAccessStatus(loggedIn);
   return (
-    <GmailAccessContext.Provider value={{ accessGranted, setAccessGranted }}>
+    <GmailAccessContext.Provider value={{ accessGranted, setAccessGranted, userInfo }}>
       {children}
     </GmailAccessContext.Provider>
   );
@@ -65,8 +85,8 @@ const tiles = [
 ];
 
 
-const Dashboard = () => {
-  const { user, loggedIn, authFetch, refreshAuth } = useAuth();
+const Dashboard = ({ onContactClick }: { onContactClick: () => void }) => {
+  const { loggedIn, authFetch, refreshAuth } = useAuth();
   const location = useLocation();
   usePageTitle();
 
@@ -82,7 +102,7 @@ const Dashboard = () => {
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
-  const { accessGranted } = useGmailAccess();
+  const { accessGranted, userInfo } = useGmailAccess();
 
   // Strict login check: GET /me, if fails refresh, if refresh fails logout, if second /me fails logout
   const strictLoginCheck = async () => {
@@ -155,8 +175,8 @@ const Dashboard = () => {
     }, "You must be logged in to summarize.");
   };
 
-  if (loggedIn === null || accessGranted === null) {
-    // No navbars or dashboard nav on loading
+  if (loggedIn === null || accessGranted === null || userInfo === null) {
+    // Only show spinner, no nav or footer
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-primary border-solid mb-4" aria-label="Loading dashboard"></div>
@@ -166,12 +186,12 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-background to-secondary/30">
+    <div className="min-h-screen flex flex-col relative bg-gradient-to-br from-background to-secondary/30">
       <GeometricBackground topOffset={mainNavHeight} />
-      <DashboardNavigation user={user ?? { name: "", avatar: "", email: "" }} />
-      <main className="container mx-auto px-4 pt-24 relative z-10">
+      <DashboardNavigation user={userInfo ?? { name: "", avatar: "", email: "" }} />
+      <main className="container mx-auto px-4 pt-24 relative z-10 flex-1">
         <h1 className="text-4xl font-bold mb-2 text-foreground">
-          Welcome back{user && user.name ? `, ${user.name}!` : "!"}
+          Welcome back{userInfo && userInfo.name ? `, ${userInfo.name}!` : "!"}
         </h1>
         <div className="text-lg text-muted-foreground mb-6 poppins-regular">What feature would you like to explore today?</div>
         <div className="grid md:grid-cols-3 gap-8 mb-12">
@@ -231,6 +251,7 @@ const Dashboard = () => {
           </div>
         )}
       </main>
+      <Footer onContactClick={onContactClick} />
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,8 +13,6 @@ import Applications from "./pages/Applications";
 import { AuthProvider } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ContactModal from "@/components/ContactModal";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
 import React from "react";
 
 
@@ -25,6 +22,7 @@ const App: React.FC = () => {
   const [contactOpen, setContactOpen] = React.useState(false);
   const handleContactClick = () => setContactOpen(true);
 
+  // Provide the handler and state to all routed pages
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
@@ -34,20 +32,18 @@ const App: React.FC = () => {
           <AuthProvider>
             <GmailAccessProvider>
               <BrowserRouter>
-                <Navigation onContactClick={handleContactClick} />
-                <div className="flex flex-col min-h-screen pt-16">{/* pt-16 for nav height */}
+                <div className="flex flex-col min-h-screen">
                   <div className="flex-1 flex flex-col">
                     <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                      <Route path="/" element={<Index onContactClick={handleContactClick} />} />
+                      <Route path="/dashboard" element={<ProtectedRoute><Dashboard onContactClick={handleContactClick} /></ProtectedRoute>} />
                       <Route path="/preferred-time" element={<PreferredTime />} />
                       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-                      <Route path="/applications" element={<ProtectedRoute><Applications /></ProtectedRoute>} />
+                      <Route path="/applications" element={<ProtectedRoute><Applications onContactClick={handleContactClick} /></ProtectedRoute>} />
                       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </div>
-                  <Footer onContactClick={handleContactClick} />
                 </div>
                 <ContactModal open={contactOpen} onOpenChange={setContactOpen} />
               </BrowserRouter>

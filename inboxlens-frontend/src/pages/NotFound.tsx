@@ -1,20 +1,10 @@
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import GeometricBackground from "@/components/GeometricBackground";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
-  const location = useLocation();
   usePageTitle();
-
-  useEffect(() => {
-    console.error(
-      "404 Error: User attempted to access non-existent route:",
-      location.pathname
-    );
-  }, [location.pathname]);
 
   return (
     <div className="min-h-screen bg-background relative">
