@@ -11,7 +11,6 @@ import com.komori.inboxlens.config.GmailClientProperties;
 import com.komori.inboxlens.dto.EmailStats;
 import com.komori.inboxlens.dto.EmailSummary;
 import com.komori.inboxlens.dto.GmailMessageParameters;
-import com.komori.inboxlens.dto.StatsAndEmails;
 import com.komori.inboxlens.entity.UserEntity;
 import com.komori.inboxlens.exception.GmailServiceException;
 import com.komori.inboxlens.repository.UserRepository;
@@ -45,22 +44,23 @@ public class GmailService {
                 .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
 
         Gmail GMAIL = createGmailObjectForUser(sub);
-        List<Message> allMessages = fetchAllMessages(GMAIL);
-        StatsAndEmails statsAndEmails = getStatsAndEmails(allMessages);
-        EmailStats stats = statsAndEmails.stats();
-        EmailSummary summary = openAIModelService.sendEmailSummaryPrompt(statsAndEmails.emails());
+        List<Message> allMessages = fetchMessagesForYesterday(GMAIL, "");
+        EmailStats stats = getEmailStats(allMessages);
+        List<Message> primaryMessages = fetchMessagesForYesterday(GMAIL, "category:primary");
+        List<String> primaryStrings = getPrimaryEmailStrings(primaryMessages);
+        EmailSummary summary = openAIModelService.sendEmailSummaryPrompt(primaryStrings);
         emailService.sendSummaryEmail(user.getEmail(), user.getName(), stats, summary);
 
         log.info("Summary Email sent successfully!");
     }
 
-    private List<Message> fetchAllMessages(Gmail GMAIL) {
+    private List<Message> fetchMessagesForYesterday(Gmail GMAIL, String customQuery) {
         List<Message> shortMessages = new ArrayList<>();
         String pageToken = null;
         do {
             try {
                 ListMessagesResponse messagesResponse = GMAIL.users().messages().list("me")
-                        .setQ(getDateQuery())
+                        .setQ(getDateQuery() + " " + customQuery)
                         .setPageToken(pageToken)
                         .execute();
                 List<Message> messages = messagesResponse.getMessages();
@@ -83,21 +83,10 @@ public class GmailService {
                 }).toList();
     }
 
-    private StatsAndEmails getStatsAndEmails(List<Message> messages) {
+    private EmailStats getEmailStats(List<Message> messages) {
         int[] promotions = {0}, updates = {0}, social = {0}, forums = {0}, personal = {0};
-        List<GmailMessageParameters> emails = new ArrayList<>();
         messages.forEach(message -> {
             List<String> labelIds = message.getLabelIds();
-            if (labelIds.contains("CATEGORY_PRIMARY")) {
-                GmailMessageParameters params = GmailMessageParameters.builder()
-                        .body(message.getSnippet())
-                        .from(getParameter("from", message))
-                        .subject(getParameter("subject", message))
-                        .time(getTime(message))
-                        .build();
-                emails.add(params);
-            }
-
             if (labelIds.contains("CATEGORY_PROMOTIONS")) {
                 promotions[0]++;
             }
@@ -115,14 +104,20 @@ public class GmailService {
             }
         });
 
-        EmailStats stats = EmailStats.builder()
+        return EmailStats.builder()
                 .total(messages.size())
                 .personal(personal[0])
                 .promotions(promotions[0])
                 .updates(updates[0])
                 .social(social[0])
                 .forums(forums[0]).build();
-        return new StatsAndEmails(stats, emails);
+    }
+
+    private List<String> getPrimaryEmailStrings(List<Message> primaryMessages) {
+        return primaryMessages.stream()
+                .map(this::getParameters)
+                .map(GmailMessageParameters::toString)
+                .toList();
     }
 
     private Gmail createGmailObjectForUser(String sub) {
@@ -177,14 +172,28 @@ public class GmailService {
                 .build();
     }
 
-    private String getParameter(String parameter, Message m) {
-        List<MessagePartHeader> mph = m.getPayload().getHeaders();
-        for (MessagePartHeader messagePartHeader : mph) {
-            if (messagePartHeader.getName().equalsIgnoreCase(parameter)) {
-                return messagePartHeader.getValue();
+    private GmailMessageParameters getParameters(Message message) {
+        long epochMilliseconds = message.getInternalDate();
+        Instant instant = Instant.ofEpochMilli(epochMilliseconds);
+        ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        String time = zonedDateTime.format(formatter);
+        String from = null, subject = null;
+
+        List<MessagePartHeader> mph = message.getPayload().getHeaders();
+        for (MessagePartHeader header : mph) {
+            switch (header.getName()) {
+                case "From" -> from = header.getValue();
+                case "Subject" -> subject = header.getValue();
             }
         }
-        return null;
+
+        return GmailMessageParameters.builder()
+                .time(time)
+                .from(from)
+                .subject(subject)
+                .body(message.getSnippet())
+                .build();
     }
 
     private String getDateQuery() {
@@ -192,13 +201,5 @@ public class GmailService {
         String today = LocalDate.now().format(gmailFormat);
         String yesterday = LocalDate.now().minusDays(1).format(gmailFormat);
         return "label:inbox after:" + yesterday + " before:" + today;
-    }
-
-    private String getTime(Message message) {
-        long epochMilliseconds = message.getInternalDate();
-        Instant instant = Instant.ofEpochMilli(epochMilliseconds);
-        ZonedDateTime zonedDateTime = instant.atZone(ZoneId.systemDefault());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        return zonedDateTime.format(formatter);
     }
 }
