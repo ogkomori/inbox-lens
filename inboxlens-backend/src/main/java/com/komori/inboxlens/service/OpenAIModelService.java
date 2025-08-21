@@ -22,18 +22,19 @@ public class OpenAIModelService {
     private final String summaryPrompt;
     private final WebClient webClient;
 
-    public EmailSummary sendEmailSummaryPrompt(List<GmailMessageParameters> parametersList) {
-        OpenAIPrompt prompt = new OpenAIPrompt(
-                "gpt-5-nano",
-                List.of(new RoleAndContent(
-                        "system",
-                        summaryPrompt
-                ), new RoleAndContent("user", parametersList)),
-                1);
-        String modelResponse = sendPrompt(prompt);
-
-        ObjectMapper mapper = new ObjectMapper();
+    public EmailSummary sendEmailSummaryPrompt(List<String> parametersList) {
         try {
+            ObjectMapper mapper = new ObjectMapper();
+            OpenAIPrompt prompt = new OpenAIPrompt(
+                    "gpt-5-nano",
+                    List.of(new RoleAndContent(
+                            "system",
+                            summaryPrompt
+                    ), new RoleAndContent(
+                            "user",
+                            mapper.writeValueAsString(parametersList))
+                    ));
+            String modelResponse = sendPrompt(prompt);
             return mapper.readValue(modelResponse, EmailSummary.class);
         } catch (JsonProcessingException e) {
             throw new OpenAIException("Error converting JSON with ObjectMapper");
