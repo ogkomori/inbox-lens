@@ -1,22 +1,21 @@
 import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { loggedIn } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (loggedIn === false) {
-      // Show feedback before redirect
-      const timer = setTimeout(() => {
-        window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/oauth2/authorization/google`;
-      }, 1500);
-      return () => clearTimeout(timer);
+      // Redirect to homepage if not logged in
+      navigate('/', { replace: true });
     }
-  }, [loggedIn]);
+  }, [loggedIn, navigate]);
 
 
   if (loggedIn === null) {
-    // No navbar or dashboard nav on loading page
+    // Show loading spinner while authentication status is being checked
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-primary border-solid mb-4" aria-label="Loading authentication status"></div>
@@ -26,13 +25,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (loggedIn === false) {
-    // No navbar or dashboard nav on redirect page
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-primary border-solid mb-4" aria-label="Redirecting to login"></div>
-        <div className="text-lg text-muted-foreground poppins-regular">You must be logged in to access this page. Redirecting...</div>
-      </div>
-    );
+    // Redirect handled by useEffect, render nothing
+    return null;
   }
 
   return <>{children}</>;

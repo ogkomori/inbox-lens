@@ -12,4 +12,7 @@ import lombok.NoArgsConstructor;
 public class DashboardDetails {
     private String name;
     private String email;
+    private int trackables;
+    private int toDoList;
+    private int digests;
 }

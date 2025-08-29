@@ -29,7 +29,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         String jwt = null;
-        String sub;
 
         // Check authorization header for the JWT
         final String authorizationHeader = request.getHeader("Authorization");
@@ -44,15 +43,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // Validate the JWT, extract email, and set Security Context if user isn't already authenticated
         if (jwt != null) {
-            sub = jwtUtil.extractSubFromToken(jwt);
+            String sub = jwtUtil.extractSubFromToken(jwt);
             if (sub != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 if (jwtUtil.validateAccessToken(jwt, sub)) {
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(sub, null,  new ArrayList<>());
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                }
-                else {
-                    logger.warn("Invalid or expired JWT for subject: " + sub); // From extended classes
                 }
             }
         }

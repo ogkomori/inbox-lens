@@ -2,7 +2,7 @@ package com.komori.inboxlens.security;
 
 import com.komori.inboxlens.entity.UserEntity;
 import com.komori.inboxlens.repository.UserRepository;
-import com.komori.inboxlens.service.EmailService;
+import com.komori.inboxlens.service.MailSendingService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
-    private final EmailService emailService;
+    private final MailSendingService mailSendingService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -39,23 +39,17 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             String email = oAuth2User.getAttribute("email");
             String name = oAuth2User.getAttribute("given_name");
 
-            emailService.sendWelcomeEmail(email, name);
+            mailSendingService.sendWelcomeEmail(email, name);
             UserEntity newUser = UserEntity.builder()
                     .email(email)
                     .sub(sub)
                     .name(name)
                     .build();
             userRepository.save(newUser);
-
-            response.sendRedirect("http://localhost:5173/preferred-time");
+            response.sendRedirect("http://localhost:5173/preferences");
         }
         else {
-            if (user.get().getPreferredTime() == null) {
-                response.sendRedirect("http://localhost:5173/preferred-time");
-            }
-            else {
-                response.sendRedirect("http://localhost:5173/dashboard");
-            }
+            response.sendRedirect("http://localhost:5173/dashboard");
         }
     }
 }

@@ -22,7 +22,7 @@ public class OpenAIModelService {
     private final String summaryPrompt;
     private final WebClient webClient;
 
-    public EmailSummary sendEmailSummaryPrompt(List<String> parametersList) {
+    public EmailSummary sendEmailSummaryPrompt(Preferences preferences, List<String> parametersList) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             OpenAIPrompt prompt = new OpenAIPrompt(
@@ -32,7 +32,7 @@ public class OpenAIModelService {
                             summaryPrompt
                     ), new RoleAndContent(
                             "user",
-                            mapper.writeValueAsString(parametersList))
+                            preferences.toString() + "Emails:\n" + mapper.writeValueAsString(parametersList))
                     ));
             String modelResponse = sendPrompt(prompt);
             return mapper.readValue(modelResponse, EmailSummary.class);

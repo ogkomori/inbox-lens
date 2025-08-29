@@ -1,17 +1,20 @@
 import { usePageTitle } from "@/hooks/usePageTitle";
-import GeometricBackground from "@/components/GeometricBackground";
+
 import Navigation from "@/components/Navigation";
+import ContactModal from "@/components/ContactModal";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+
 
 const NotFound = () => {
   usePageTitle();
+  const [contactOpen, setContactOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background relative">
-      <GeometricBackground />
-      <Navigation />
-      <main className="flex flex-col items-center justify-center min-h-screen relative z-10 px-4">
-  <div className="text-center bg-black/80 rounded-xl shadow p-8">
+    <div className="min-h-screen bg-background relative flex flex-col">
+      <Navigation onContactClick={() => setContactOpen(true)} />
+      <main className="flex flex-col items-center justify-center flex-1 relative z-10 px-4">
+        <div className="text-center bg-black/80 rounded-xl shadow p-8">
           <h1 className="text-6xl md:text-7xl font-bold mb-6 text-primary poppins-bold">404</h1>
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 poppins-regular">Oops! Page not found</p>
           <Button asChild size="lg" className="px-8 py-4">
@@ -19,6 +22,7 @@ const NotFound = () => {
           </Button>
         </div>
       </main>
+      <ContactModal open={contactOpen} onOpenChange={setContactOpen} />
     </div>
   );
 };

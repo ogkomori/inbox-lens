@@ -1,31 +1,40 @@
 package com.komori.inboxlens.service;
 
-import com.komori.inboxlens.dto.DashboardDetails;
+import com.komori.inboxlens.dto.Preferences;
 import com.komori.inboxlens.entity.UserEntity;
 import com.komori.inboxlens.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalTime;
-
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
     private final UserRepository userRepository;
 
-    public DashboardDetails getDashboardDetails(String sub) {
-        UserEntity userEntity = userRepository.findBySub(sub)
+    public void setPreferences(String sub, Preferences preferences) {
+        UserEntity user = userRepository.findBySub(sub)
                 .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
 
-        return new DashboardDetails(userEntity.getName(), userEntity.getEmail());
+        user.setPreferredTime(preferences.getPreferredTime());
+        user.setIndustries(preferences.getIndustries());
+        user.setUserCategory(preferences.getUserCategory());
+        user.setEmailTypes(preferences.getEmailTypes());
+        userRepository.save(user);
     }
 
-    public void setPreferredTime(String sub, String time) {
-        UserEntity userEntity = userRepository.findBySub(sub)
+    public void setName(String sub, String name) {
+        UserEntity user = userRepository.findBySub(sub)
                 .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
 
-        userEntity.setPreferredTime(LocalTime.parse(time));
-        userRepository.save(userEntity);
+        user.setName(name);
+        userRepository.save(user);
+    }
+
+    public void deleteAccount(String sub) {
+        UserEntity user = userRepository.findBySub(sub)
+                .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
+
+        userRepository.delete(user);
     }
 }

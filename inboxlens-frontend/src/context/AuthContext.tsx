@@ -10,14 +10,12 @@ interface User {
 interface AuthContextType {
   loggedIn: boolean | null;
   user: User | null;
-  refreshAuth: () => void;
   authFetch: (input: RequestInfo, init?: RequestInit, retry?: boolean) => Promise<Response>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   loggedIn: null,
   user: null,
-  refreshAuth: () => {},
   authFetch: async () => { throw new Error("authFetch not initialized") },
 });
 
@@ -29,9 +27,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
       // Always start with GET /me
-      let res = await fetch(`${baseUrl}/api/profile/me`, { credentials: "include" });
+  let res = await fetch(`${baseUrl}/api/dashboard/me`, { credentials: "include" });
       let data = await res.json();
-      console.log("[AuthContext] GET /api/profile/me response:", data);
+
       if (res.status === 401 || data.success === false) {
         // If /me fails, try refresh
         const refreshRes = await fetch(`${baseUrl}/api/auth/refresh`, {
@@ -39,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           credentials: "include",
         });
         const refreshData = await refreshRes.json().catch(() => ({}));
-        console.log("[AuthContext] POST /api/auth/refresh response:", refreshData);
+
         if (refreshRes.status === 401) {
           // Call logout endpoint to clear any server-side session/cookies
           try {
@@ -49,15 +47,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
           setLoggedIn(false);
           setUser(null);
+          sessionStorage.removeItem("dashboardUserInfo");
           return;
         }
         // If refresh succeeds, try /me again
-        res = await fetch(`${baseUrl}/api/profile/me`, { credentials: "include" });
+  res = await fetch(`${baseUrl}/api/dashboard/me`, { credentials: "include" });
         data = await res.json();
-        console.log("[AuthContext] GET /api/profile/me after refresh response:", data);
+
         if (res.status === 401 || data.success === false) {
           setLoggedIn(false);
           setUser(null);
+          sessionStorage.removeItem("dashboardUserInfo");
           return;
         }
       }
@@ -66,21 +66,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Only set to false if both attempts failed
         setLoggedIn(false);
         setUser(null);
+        sessionStorage.removeItem("dashboardUserInfo");
       } else {
         setLoggedIn(true);
-        setUser({
+        const userObj = {
           name: data.name || "",
           email: data.email || "",
           avatar: data.avatar || ""
-        });
+        };
+        setUser(userObj);
+        sessionStorage.setItem("dashboardUserInfo", JSON.stringify(userObj));
       }
     } catch (err) {
-      console.log("[AuthContext] fetchAuth error:", err);
+
       setLoggedIn(false);
       setUser(null);
+      sessionStorage.removeItem("dashboardUserInfo");
       toast({
         title: "Authentication Error",
-  description: "Could not verify your session. Please log in.",
+        description: "Could not verify your session. Please log in.",
         variant: "destructive"
       });
     }
@@ -100,6 +104,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch {}
         setLoggedIn(false);
         setUser(null);
+        sessionStorage.removeItem("dashboardUserInfo");
         toast({
           title: "Session Expired",
           description: "Please log in.",
@@ -118,7 +123,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ loggedIn, user, refreshAuth: fetchAuth, authFetch }}>
+  <AuthContext.Provider value={{ loggedIn, user, authFetch }}>
       {loggedIn === null ? (
         <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-primary border-solid" aria-label="Loading authentication status"></div>

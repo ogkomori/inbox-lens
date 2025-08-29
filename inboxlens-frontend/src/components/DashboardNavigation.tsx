@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 
@@ -15,6 +15,7 @@ const DashboardNavigation = ({ user }: { user: User }) => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   // removed refreshUser, not needed
   const { loggedIn, authFetch } = useAuth();
 
@@ -33,10 +34,11 @@ const DashboardNavigation = ({ user }: { user: User }) => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <button
-          className="font-bold text-2xl bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent focus:outline-none"
+          className="flex items-center gap-2 font-bold text-2xl bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent focus:outline-none"
           onClick={() => navigate("/")}
           aria-label="Go to homepage"
         >
+          <img src="/favicon.ico" alt="InboxLens logo" className="h-7 w-7" />
           InboxLens
         </button>
         <div className="flex items-center gap-4">
@@ -59,13 +61,13 @@ const DashboardNavigation = ({ user }: { user: User }) => {
                 <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-lg py-2 z-50">
                   <a
                     href="/dashboard"
-                    className="block px-4 py-2 text-foreground hover:bg-secondary transition-colors"
+                    className={`block px-4 py-2 text-foreground hover:bg-secondary transition-colors ${location.pathname === '/dashboard' ? 'bg-secondary font-bold' : ''}`}
                   >
                     Dashboard
                   </a>
                   <a
                     href="/settings"
-                    className="block px-4 py-2 text-foreground hover:bg-secondary transition-colors"
+                    className={`block px-4 py-2 text-foreground hover:bg-secondary transition-colors ${location.pathname === '/settings' ? 'bg-secondary font-bold' : ''}`}
                   >
                     Settings
                   </a>

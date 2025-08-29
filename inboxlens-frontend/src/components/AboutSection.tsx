@@ -1,6 +1,5 @@
-
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import GeometricBackground from "@/components/GeometricBackground";
 
 const features = [
   {
@@ -17,10 +16,9 @@ const features = [
   }
 ];
 
-const AboutSection = () => {
+const AboutSection: React.FC = React.memo(() => {
   return (
   <section id="about" className="py-36 min-h-[90vh] relative flex-1 flex flex-col justify-center bg-gradient-to-br from-background to-secondary/30">
-      <GeometricBackground />
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
@@ -47,6 +45,7 @@ const AboutSection = () => {
       </div>
     </section>
   );
-};
+});
 
 export default AboutSection;
+

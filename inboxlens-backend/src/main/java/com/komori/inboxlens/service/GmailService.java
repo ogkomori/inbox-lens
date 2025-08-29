@@ -9,7 +9,6 @@ import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePartHeader;
 import com.komori.inboxlens.config.GmailClientProperties;
 import com.komori.inboxlens.dto.EmailStats;
-import com.komori.inboxlens.dto.EmailSummary;
 import com.komori.inboxlens.dto.GmailMessageParameters;
 import com.komori.inboxlens.entity.UserEntity;
 import com.komori.inboxlens.exception.GmailServiceException;
@@ -36,22 +35,72 @@ public class GmailService {
     private final GmailClientProperties gmailClientProperties;
     private final HttpTransport httpTransport;
     private final JsonFactory jsonFactory;
-    private final OpenAIModelService openAIModelService;
-    private final EmailService emailService;
 
-    public void getFinalSummary(String sub) {
+    public Gmail createGmailObjectForUser(String sub) {
         UserEntity user = userRepository.findBySub(sub)
                 .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
 
-        Gmail GMAIL = createGmailObjectForUser(sub);
-        List<Message> allMessages = fetchMessagesForYesterday(GMAIL, "");
-        EmailStats stats = getEmailStats(allMessages);
-        List<Message> primaryMessages = fetchMessagesForYesterday(GMAIL, "category:primary");
-        List<String> primaryStrings = getPrimaryEmailStrings(primaryMessages);
-        EmailSummary summary = openAIModelService.sendEmailSummaryPrompt(primaryStrings);
-        emailService.sendSummaryEmail(user.getEmail(), user.getName(), stats, summary);
+        String accessTokenValue = user.getAccessToken();
+        String refreshTokenValue = user.getRefreshToken();
+        Long expirationTime = user.getAccessTokenExpiresAt().toEpochMilli();
 
-        log.info("Summary Email sent successfully!");
+        if (accessTokenValue == null) {
+            user.setInboxAccessGranted(false);
+            throw new GmailServiceException("User " + sub + " has no Gmail access token");
+        }
+
+        Credential credential = new Credential.Builder(BearerToken.authorizationHeaderAccessMethod())
+                .setRefreshListeners(List.of(new CredentialRefreshListener() {
+                    @Override
+                    public void onTokenResponse(Credential credential, TokenResponse tokenResponse) {
+                        String newAccessToken = credential.getAccessToken();
+                        String newRefreshToken = credential.getRefreshToken();
+                        Instant newExpiry = Instant.ofEpochMilli(credential.getExpirationTimeMilliseconds());
+                        user.setAccessToken(newAccessToken);
+                        user.setAccessTokenIssuedAt(Instant.now());
+                        user.setAccessTokenExpiresAt(newExpiry);
+                        if (newRefreshToken != null) {
+                            user.setRefreshToken(newRefreshToken);
+                        }
+                        userRepository.save(user);
+                    }
+
+                    @Override
+                    public void onTokenErrorResponse(Credential credential, TokenErrorResponse tokenErrorResponse) {
+                        String email = user.getEmail();
+                        log.error("Token refresh failed for user with email {}.", email);
+                        log.error("Error: {}", tokenErrorResponse.getError());
+                        log.error("Description: {}", tokenErrorResponse.getErrorDescription());
+                    }
+                })) // adds custom refresh listener (to save new tokens after refresh)
+                // You might be wondering why this whole logic isn't in a separate class
+                // This isn't in a separate class because if it was, we wouldn't be able to access the sub attribute
+                // Which is used for identification of the current user
+                .setJsonFactory(jsonFactory)
+                .setTransport(httpTransport)
+                .setTokenServerEncodedUrl(gmailClientProperties.getToken_uri()) // token uri
+                .setClientAuthentication(new ClientParametersAuthentication(
+                        gmailClientProperties.getClient_id(),
+                        gmailClientProperties.getClient_secret())
+                ) // add clientID and clientSecret
+                .build()
+                .setAccessToken(accessTokenValue)
+                .setRefreshToken(refreshTokenValue)
+                .setExpirationTimeMilliseconds(expirationTime);
+
+        return new Gmail.Builder(httpTransport, jsonFactory, credential)
+                .setApplicationName("InboxLens")
+                .build();
+    }
+
+    public List<String> fetchPrimaryEmailsForUser(Gmail gmail) {
+        List<Message> primaryMessages = fetchMessagesForYesterday(gmail, "category:primary");
+        return getPrimaryEmailStrings(primaryMessages);
+    }
+
+    public EmailStats fetchEmailStats(Gmail gmail) {
+        List<Message> allMessages = fetchMessagesForYesterday(gmail, "");
+        return getEmailStats(allMessages);
     }
 
     private List<Message> fetchMessagesForYesterday(Gmail GMAIL, String customQuery) {
@@ -118,58 +167,6 @@ public class GmailService {
                 .map(this::getParameters)
                 .map(GmailMessageParameters::toString)
                 .toList();
-    }
-
-    private Gmail createGmailObjectForUser(String sub) {
-        UserEntity user = userRepository.findBySub(sub)
-                .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
-
-        String accessTokenValue = user.getAccessToken();
-        String refreshTokenValue = user.getRefreshToken();
-        Long expirationTime = user.getAccessTokenExpiresAt().toEpochMilli();
-
-        Credential credential = new Credential.Builder(BearerToken.authorizationHeaderAccessMethod())
-                .setRefreshListeners(List.of(new CredentialRefreshListener() {
-                    @Override
-                    public void onTokenResponse(Credential credential, TokenResponse tokenResponse) {
-                        String newAccessToken = credential.getAccessToken();
-                        String newRefreshToken = credential.getRefreshToken();
-                        Instant newExpiry = Instant.ofEpochMilli(credential.getExpirationTimeMilliseconds());
-                        user.setAccessToken(newAccessToken);
-                        user.setAccessTokenIssuedAt(Instant.now());
-                        user.setAccessTokenExpiresAt(newExpiry);
-                        if (newRefreshToken != null) {
-                            user.setRefreshToken(newRefreshToken);
-                        }
-                        userRepository.save(user);
-                    }
-
-                    @Override
-                    public void onTokenErrorResponse(Credential credential, TokenErrorResponse tokenErrorResponse) {
-                        String email = user.getEmail();
-                        log.error("Token refresh failed for user with email {}.", email);
-                        log.error("Error: {}", tokenErrorResponse.getError());
-                        log.error("Description: {}", tokenErrorResponse.getErrorDescription());
-                    }
-                })) // adds custom refresh listener (to save new tokens after refresh)
-                // You might be wondering why this whole logic isn't in a separate class
-                // This isn't in a separate class because if it was, we wouldn't be able to access the sub attribute
-                // Which is used for identification of the current user, dyg?
-                .setJsonFactory(jsonFactory)
-                .setTransport(httpTransport)
-                .setTokenServerEncodedUrl(gmailClientProperties.getToken_uri()) // token uri
-                .setClientAuthentication(new ClientParametersAuthentication(
-                        gmailClientProperties.getClient_id(),
-                        gmailClientProperties.getClient_secret())
-                ) // add clientID and clientSecret
-                .build()
-                .setAccessToken(accessTokenValue)
-                .setRefreshToken(refreshTokenValue)
-                .setExpirationTimeMilliseconds(expirationTime);
-
-        return new Gmail.Builder(httpTransport, jsonFactory, credential)
-                .setApplicationName("InboxLens")
-                .build();
     }
 
     private GmailMessageParameters getParameters(Message message) {

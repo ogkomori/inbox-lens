@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 const TITLES: Record<string, string> = {
   "/": "InboxLens",
   "/dashboard": "Dashboard",
-  "/applications": "Applications",
+  // "/applications": "Applications",
   "/settings": "Settings",
   "/preferred-time": "Preferred Time",
 };

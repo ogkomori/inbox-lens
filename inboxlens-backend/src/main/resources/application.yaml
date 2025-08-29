@@ -1,4 +1,9 @@
 spring:
+#  datasource:
+#    driver-class-name: org.postgresql.Driver
+#    username: ${SPRING_DATASOURCE_USERNAME}
+#    password: ${SPRING_DATASOURCE_PASSWORD}
+#    url: ${SPRING_DATASOURCE_URL}
   jpa:
     hibernate:
       ddl-auto: none
@@ -13,7 +18,7 @@ spring:
             scope:
               - "email"
               - "profile"
-            redirect-uri: "http://localhost:8080/login/oauth2/code/google"
+            redirect-uri: "${BACKEND_URL}/login/oauth2/code/google"
             authorization-grant-type: "authorization_code"
         provider:
           google:
@@ -35,21 +40,17 @@ spring:
           from: ${MAIL_FROM}
 
 gmail:
-  oauth:
+  oauth2:
     client-id: ${GMAIL_CLIENT_ID}
     client-secret: ${GMAIL_CLIENT_SECRET}
     scope: "https://www.googleapis.com/auth/gmail.readonly"
     auth-uri: "https://accounts.google.com/o/oauth2/v2/auth"
-    redirect-uri: "http://localhost:8080/api/gmail/oauth2/callback"
+    redirect-uri: "${BACKEND_URL}/api/gmail/oauth2/callback"
     token-uri: "https://oauth2.googleapis.com/token"
 
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
-
-logging:
-  level:
-    org.springframework.security: debug
 
 open:
   api:

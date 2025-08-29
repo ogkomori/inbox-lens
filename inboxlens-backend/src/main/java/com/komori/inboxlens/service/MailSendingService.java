@@ -1,12 +1,15 @@
 package com.komori.inboxlens.service;
 
+import com.komori.inboxlens.dto.Contact;
 import com.komori.inboxlens.dto.EmailStats;
 import com.komori.inboxlens.dto.EmailSummary;
+import com.komori.inboxlens.exception.MailSendingException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -17,7 +20,7 @@ import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
-public class EmailService {
+public class MailSendingService {
     @Value("${spring.mail.properties.mail.smtp.from}")
     private String fromEmail;
     private final SpringTemplateEngine templateEngine;
@@ -27,7 +30,6 @@ public class EmailService {
         Context context = new Context();
         context.setVariable("username", name);
         String htmlContent = templateEngine.process("welcome-email", context);
-
         MimeMessage message = mailSender.createMimeMessage();
 
         try {
@@ -38,14 +40,13 @@ public class EmailService {
             helper.setFrom(fromEmail);
             mailSender.send(message);
         } catch (MessagingException | MailException e) {
-            throw new RuntimeException(e);
+            throw new MailSendingException("Failed to send welcome email", e);
         }
     }
 
     public void sendSummaryEmail(String toEmail, String name, EmailStats emailStats, EmailSummary summary)  {
         Context context = getContextForSummaryEmail(name, emailStats, summary);
         String htmlContent = templateEngine.process("summary-email", context);
-
         MimeMessage message = mailSender.createMimeMessage();
 
         try {
@@ -58,6 +59,15 @@ public class EmailService {
         } catch (MessagingException | MailException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void sendContactEmail(Contact contact) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(fromEmail);
+        message.setFrom(fromEmail);
+        message.setSubject("New Message from " + contact.getEmail());
+        message.setText(contact.toString());
+        mailSender.send(message);
     }
 
     private Context getContextForSummaryEmail(String name, EmailStats emailStats, EmailSummary summary) {

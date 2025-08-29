@@ -4,6 +4,6 @@ import java.time.LocalDateTime;
 
 public record CustomResponseBody(LocalDateTime timestamp,
                                  Integer statusCode,
-                                 String message,
-                                 Boolean success) {
+                                 String error,
+                                 String message) {
 }

@@ -1,7 +1,6 @@
 
 
 import { Button } from "@/components/ui/button";
-import GeometricBackground from "@/components/GeometricBackground";
 import { useAuth } from "@/context/AuthContext";
 
 const HeroSection = () => {
@@ -16,8 +15,8 @@ const HeroSection = () => {
     style={{ minHeight: `calc(100vh - ${mainNavHeight}px)`, marginTop: `${mainNavHeight}px` }}
     className="flex items-center justify-center bg-gradient-to-br from-background to-secondary/30 relative"
   >
-    <GeometricBackground topOffset={mainNavHeight} />
-    <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center justify-center h-full relative z-10 -mt-32 gap-12">
+  {/* GeometricBackground is now rendered globally */}
+    <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center justify-center h-full relative z-10 -mt-16 gap-12">
       {/* Left: Text and buttons */}
       <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left mb-12 lg:mb-0 lg:pl-8 relative">
         {/* Decorative dots aura */}
@@ -42,15 +41,22 @@ const HeroSection = () => {
               <a href="/dashboard">View Dashboard</a>
             </Button>
           ) : (
-            <Button asChild variant="hero" size="lg" className="text-lg px-8 py-4">
-              <a href={`${import.meta.env.VITE_BACKEND_BASE_URL}/oauth2/authorization/google`}>Get Started</a>
+            <Button
+              variant="hero"
+              size="lg"
+              className="text-lg px-8 py-4"
+              onClick={() => {
+                window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/oauth2/authorization/google`;
+              }}
+            >
+              Get Started
             </Button>
           )}
           <Button
             asChild
             variant="outline"
             size="lg"
-            className="text-lg px-8 py-4"
+            className="text-lg px-8 py-4 bg-white text-black border border-gray-200 hover:bg-gray-100 hover:text-black hover:shadow-md dark:bg-black dark:text-white dark:border-gray-700 dark:hover:bg-neutral-900 dark:hover:text-white transition-colors"
           >
             <a href="#about">Learn More</a>
           </Button>

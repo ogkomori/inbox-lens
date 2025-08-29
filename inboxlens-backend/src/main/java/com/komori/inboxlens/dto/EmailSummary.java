@@ -1,6 +1,7 @@
 package com.komori.inboxlens.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class EmailSummary {
     private List<ActionableEmail> actionableEmailList;
     private List<ImportantInformationEmail> importantInformationList;

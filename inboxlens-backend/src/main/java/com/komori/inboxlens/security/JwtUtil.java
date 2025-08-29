@@ -30,7 +30,7 @@ public class JwtUtil {
                 .httpOnly(true)
                 .path("/")
                 .secure(true)
-                .maxAge(Duration.ofMinutes(5))
+                .maxAge(Duration.ofMinutes(10))
                 .sameSite("None")
                 .build();
     }
@@ -51,7 +51,7 @@ public class JwtUtil {
                 .claims(claims)
                 .subject(sub)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 5)) // 5 min expiration
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 10)) // 10 min expiration
                 .signWith(Keys.hmacShaKeyFor(STORED_SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
                 .compact();
     }

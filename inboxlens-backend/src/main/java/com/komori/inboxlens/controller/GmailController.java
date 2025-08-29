@@ -2,9 +2,7 @@ package com.komori.inboxlens.controller;
 
 import com.komori.inboxlens.config.GmailClientProperties;
 import com.komori.inboxlens.entity.UserEntity;
-import com.komori.inboxlens.exception.RedirectFailedException;
 import com.komori.inboxlens.repository.UserRepository;
-import com.komori.inboxlens.service.GmailService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,10 +32,9 @@ public class GmailController {
     private final UserRepository userRepository;
     private final GmailClientProperties clientProperties;
     private final RestTemplateBuilder restTemplateBuilder;
-    private final GmailService gmailService;
 
     @GetMapping("/auth-url")
-    public void sendToAuthUrl(HttpServletResponse response) {
+    public void sendToAuthUrl(HttpServletResponse response) throws IOException {
         String url = UriComponentsBuilder.fromUriString(clientProperties.getAuth_uri())
                 .queryParam("client_id", clientProperties.getClient_id())
                 .queryParam("redirect_uri", clientProperties.getRedirect_uri())
@@ -47,17 +44,13 @@ public class GmailController {
                 .queryParam("prompt", "consent")
                 .build().toUriString();
 
-        try {
-            response.sendRedirect(url);
-        } catch (IOException e) {
-            throw new RedirectFailedException("Redirect failed for: " + url);
-        }
+        response.sendRedirect(url);
     }
 
     @GetMapping("/oauth2/callback")
     public void handleCallback(@RequestParam(name = "code") String code,
                                @CurrentSecurityContext(expression = "authentication?.name") String sub,
-                               HttpServletResponse servletResponse) {
+                               HttpServletResponse servletResponse) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -69,9 +62,7 @@ public class GmailController {
         body.add("grant_type", "authorization_code");
 
         HttpEntity<MultiValueMap<String,String>> request = new HttpEntity<>(body, headers);
-
         RestTemplate template = restTemplateBuilder.build();
-
         ResponseEntity<Map> response = template.postForEntity(
                 clientProperties.getToken_uri(),
                 request,
@@ -96,11 +87,7 @@ public class GmailController {
         }
 
         String dashboardUrl = "http://localhost:5173/dashboard";
-        try {
-            servletResponse.sendRedirect(dashboardUrl);
-        } catch (IOException e) {
-            throw new RedirectFailedException("Redirect failed for: " + dashboardUrl);
-        }
+        servletResponse.sendRedirect(dashboardUrl);
     }
 
     @PostMapping("/token/refresh")
@@ -137,11 +124,5 @@ public class GmailController {
                 .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
 
         return ResponseEntity.ok(user.getInboxAccessGranted());
-    }
-
-    @GetMapping("/summarize-emails")
-    public ResponseEntity<?> summarizeEmails(@CurrentSecurityContext(expression = "authentication?.name") String sub) {
-        gmailService.getFinalSummary(sub);
-        return ResponseEntity.ok("Email sent successfully");
     }
 }
