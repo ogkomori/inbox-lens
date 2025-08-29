@@ -18,7 +18,7 @@ spring:
             scope:
               - "email"
               - "profile"
-            redirect-uri: "${BACKEND_URL}/login/oauth2/code/google"
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
             authorization-grant-type: "authorization_code"
         provider:
           google:
@@ -57,3 +57,8 @@ open:
     key: ${OPEN_API_KEY}
 server:
   forward-headers-strategy: native
+  servlet:
+    session:
+      cookie:
+        secure: true
+        same-site: lax
