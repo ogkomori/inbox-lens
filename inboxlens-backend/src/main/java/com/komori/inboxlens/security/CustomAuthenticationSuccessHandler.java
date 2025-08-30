@@ -1,5 +1,6 @@
 package com.komori.inboxlens.security;
 
+import com.komori.inboxlens.config.AppProperties;
 import com.komori.inboxlens.entity.UserEntity;
 import com.komori.inboxlens.repository.UserRepository;
 import com.komori.inboxlens.service.MailSendingService;
@@ -23,6 +24,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final MailSendingService mailSendingService;
+    private final AppProperties appProperties;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -35,6 +37,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         OAuth2User oAuth2User = ((OAuth2AuthenticationToken) authentication).getPrincipal();
         Optional<UserEntity> user = userRepository.findBySub(sub);
+        String frontendUrl = appProperties.getFrontendUrl();
         if (user.isEmpty()) {
             String email = oAuth2User.getAttribute("email");
             String name = oAuth2User.getAttribute("given_name");
@@ -46,10 +49,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                     .name(name)
                     .build();
             userRepository.save(newUser);
-            response.sendRedirect("http://localhost:5173/preferences");
+            response.sendRedirect(frontendUrl + "/preferences");
         }
         else {
-            response.sendRedirect("http://localhost:5173/dashboard");
+            response.sendRedirect(frontendUrl + "/dashboard");
         }
     }
 }

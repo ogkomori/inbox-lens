@@ -1,5 +1,6 @@
 package com.komori.inboxlens.controller;
 
+import com.komori.inboxlens.config.AppProperties;
 import com.komori.inboxlens.config.GmailClientProperties;
 import com.komori.inboxlens.entity.UserEntity;
 import com.komori.inboxlens.repository.UserRepository;
@@ -32,6 +33,7 @@ public class GmailController {
     private final UserRepository userRepository;
     private final GmailClientProperties clientProperties;
     private final RestTemplateBuilder restTemplateBuilder;
+    private final AppProperties appProperties;
 
     @GetMapping("/auth-url")
     public void sendToAuthUrl(HttpServletResponse response) throws IOException {
@@ -86,7 +88,7 @@ public class GmailController {
             userRepository.save(user);
         }
 
-        String dashboardUrl = "http://localhost:5173/dashboard";
+        String dashboardUrl = appProperties.getFrontendUrl() + "/dashboard";
         servletResponse.sendRedirect(dashboardUrl);
     }
 

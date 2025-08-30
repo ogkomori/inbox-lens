@@ -23,6 +23,7 @@ import java.util.List;
 public class SecurityConfig {
     private final CustomAuthenticationSuccessHandler successHandler;
     private final JwtRequestFilter jwtRequestFilter;
+    private final AppProperties appProperties;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
@@ -46,7 +47,7 @@ public class SecurityConfig {
         configuration.setAllowCredentials(true);
         configuration.setAllowedMethods(List.of("GET", "PUT", "PATCH", "POST", "DELETE"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of(appProperties.getFrontendUrl()));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
