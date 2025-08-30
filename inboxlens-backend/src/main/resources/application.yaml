@@ -56,9 +56,9 @@ open:
   api:
     key: ${OPEN_API_KEY}
 server:
-  forward-headers-strategy: native
-  servlet:
-    session:
-      cookie:
-        secure: true
-        same-site: lax
+  forward-headers-strategy: framework
+#  servlet:
+#    session:
+#      cookie:
+#        secure: true
+#        same-site: lax
