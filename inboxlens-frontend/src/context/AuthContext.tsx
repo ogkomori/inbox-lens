@@ -82,11 +82,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoggedIn(false);
       setUser(null);
       sessionStorage.removeItem("dashboardUserInfo");
-      toast({
-        title: "Authentication Error",
-        description: "Could not verify your session. Please log in.",
-        variant: "destructive"
-      });
     }
   };
 

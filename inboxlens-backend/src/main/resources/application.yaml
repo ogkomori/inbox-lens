@@ -58,6 +58,12 @@ open:
 
 server:
   forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        secure: true
 
 app:
   frontend-url: ${FRONTEND_URL}
+
