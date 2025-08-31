@@ -58,5 +58,6 @@ open:
 
 server:
   forward-headers-strategy: framework
+
 app:
   frontend-url: ${FRONTEND_URL}
