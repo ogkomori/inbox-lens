@@ -34,16 +34,8 @@ const Dashboard = () => {
       .catch(() => setGmailConnected(false));
   }, []);
 
-  const handleConnectInbox = async () => {
-    try {
-      const res = await fetch(`${backendUrl}/api/gmail/auth-url`, { credentials: "include" });
-      const data = await res.json();
-      if (data && data.url) {
-        window.location.href = data.url;
-      }
-    } catch {
-      // Optionally show error toast or message
-    }
+  const handleConnectInbox = () => {
+    window.location.href = `${backendUrl}/api/gmail/auth-url`;
   };
 
   if (loading) {
@@ -86,21 +78,21 @@ const Dashboard = () => {
               icon={<CheckSquare className="w-7 h-7 text-primary" />}
               label="To-Do List"
               value={details.toDoList.toString()}
-              subtext={<><span>incomplete tasks</span><br /><br /><span className="font-medium text-white">Click to view or edit your to-do list</span></>}
+              subtext={<><span>incomplete tasks</span><br /><br /><span className="font-medium text-black dark:text-white">Click to view or edit your to-do list</span></>}
               onClick={() => navigate('/todo')}
             />
             <StatCard
               icon={<Target className="w-7 h-7 text-primary" />}
               label="Tracking"
               value={details.trackables.toString()}
-              subtext={<><span>items to keep track of</span><br /><br /><span className="font-medium text-white">Click to view what you're tracking</span></>}
+              subtext={<><span>items to keep track of</span><br /><br /><span className="font-medium text-black dark:text-white">Click to view what you're tracking</span></>}
               onClick={() => navigate('/trackables')}
             />
             <StatCard
               icon={<Mail className="w-7 h-7 text-primary" />}
               label="Digests"
               value={details.digests?.toString() || "0"}
-              subtext={<><span>days covered</span><br /><br /><span className="font-medium text-white">Click to customize your digests</span></>}
+              subtext={<><span>days covered</span><br /><br /><span className="font-medium text-black dark:text-white">Click to customize your digests</span></>}
               onClick={() => navigate('/digests')}
             />
           </div>
