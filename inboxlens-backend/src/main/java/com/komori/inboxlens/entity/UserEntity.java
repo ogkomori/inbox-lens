@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -32,14 +33,18 @@ public class UserEntity {
     private String preferredTime;
     @Builder.Default
     private Boolean inboxAccessGranted = false;
-    private Set<String> userCategory;
-    private Set<String> industries;
-    private Set<String> emailTypes;
+    @Builder.Default
+    private Set<String> userCategory = new HashSet<>();
+    @Builder.Default
+    private Set<String> industries = new HashSet<>();
+    @Builder.Default
+    private Set<String> emailTypes = new HashSet<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<TrackablesEntity> trackables = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ToDoListEntity> toDoList = new ArrayList<>();
-    private int digests;
+    @Builder.Default
+    private int digests = 0;
 }
