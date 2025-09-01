@@ -76,7 +76,6 @@ const DashboardNavigation = ({ user }: { user: User }) => {
                     onClick={() => {
                       authFetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/logout`, { method: "POST" })
                         .then(() => {
-                          localStorage.clear();
                           window.location.href = "/";
                         });
                     }}

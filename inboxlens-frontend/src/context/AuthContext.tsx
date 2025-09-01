@@ -39,7 +39,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const refreshData = await refreshRes.json().catch(() => ({}));
 
         if (refreshRes.status === 401) {
-          // Call logout endpoint to clear any server-side session/cookies
+          // Clear session storage before logout API call
+          sessionStorage.removeItem("dashboardUserInfo");
           try {
             await fetch(`${baseUrl}/api/auth/logout`, { method: "POST", credentials: "include" });
           } catch (e) {
@@ -47,7 +48,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
           setLoggedIn(false);
           setUser(null);
-          sessionStorage.removeItem("dashboardUserInfo");
           return;
         }
         // If refresh succeeds, try /me again
@@ -94,12 +94,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const refreshRes = await fetch(`${baseUrl}/api/auth/refresh`, { method: "POST", credentials: "include" });
       if (refreshRes.status === 401) {
         // Session expired, log out
+        sessionStorage.removeItem("dashboardUserInfo");
         try {
           await fetch(`${baseUrl}/api/auth/logout`, { method: "POST", credentials: "include" });
         } catch {}
         setLoggedIn(false);
         setUser(null);
-        sessionStorage.removeItem("dashboardUserInfo");
         toast({
           title: "Session Expired",
           description: "Please log in.",

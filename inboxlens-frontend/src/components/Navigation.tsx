@@ -110,8 +110,6 @@ const Navigation: React.FC<NavigationProps> = ({ onContactClick }) => {
                     onClick={() => {
                       authFetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/auth/logout`, { method: "POST" })
                         .then(() => {
-                          localStorage.clear();
-                          sessionStorage.clear();
                           window.location.href = "/";
                         });
                     }}
