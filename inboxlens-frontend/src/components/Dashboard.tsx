@@ -1,6 +1,5 @@
 import DashboardNavigation from "@/components/DashboardNavigation";
-import GeometricBackground from "@/components/GeometricBackground";
-import { CheckSquare, Target, Clock, Mail } from "lucide-react";
+import { CheckSquare, Target, Mail } from "lucide-react";
 import Footer from "@/components/Footer";
 
 
@@ -20,13 +19,32 @@ const Dashboard = () => {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [gmailConnected, setGmailConnected] = useState<boolean | null>(null);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://www.inboxlens.app";
 
   useEffect(() => {
     fetchDashboardDetails()
       .then(setDetails)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
+    // Check Gmail connection status (plain text response)
+    fetch(`${backendUrl}/api/gmail/inbox-access-granted`, { credentials: "include" })
+      .then(res => res.text())
+      .then(text => setGmailConnected(text.trim() === "true"))
+      .catch(() => setGmailConnected(false));
   }, []);
+
+  const handleConnectInbox = async () => {
+    try {
+      const res = await fetch(`${backendUrl}/api/gmail/auth-url`, { credentials: "include" });
+      const data = await res.json();
+      if (data && data.url) {
+        window.location.href = data.url;
+      }
+    } catch {
+      // Optionally show error toast or message
+    }
+  };
 
   if (loading) {
     return (
@@ -49,7 +67,19 @@ const Dashboard = () => {
             <h1 className="text-4xl font-bold mb-2 text-foreground">
               Welcome back{details.name ? `, ${details.name}` : ""}!
             </h1>
-            <p className="text-muted-foreground text-lg">Here's a quick look at your dashboard today.</p>
+            {gmailConnected === null ? (
+              <p className="text-muted-foreground text-lg">Checking Gmail connection...</p>
+            ) : gmailConnected ? (
+              <p className="text-muted-foreground text-lg">Here's a quick look at your dashboard today.</p>
+            ) : (
+              <button
+                className="text-lg text-primary underline bg-transparent border-none p-0 cursor-pointer"
+                onClick={handleConnectInbox}
+                style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
+              >
+                You haven't connected your Gmail inbox yet. Click here to connect your inbox
+              </button>
+            )}
           </div>
           <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
             <StatCard
