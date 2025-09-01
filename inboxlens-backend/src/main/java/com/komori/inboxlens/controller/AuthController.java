@@ -50,6 +50,10 @@ public class AuthController {
         }
 
         String sub = (String) userInfo.get("sub");
+        ResponseCookie accessCookie = jwtUtil.createAccessTokenCookie(sub);
+        ResponseCookie refreshCookie = jwtUtil.createRefreshTokenCookie(sub);
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
         Optional<UserEntity> user = userRepository.findBySub(sub);
         if (user.isEmpty()) {
             String email = (String) userInfo.get("email");
@@ -60,13 +64,10 @@ public class AuthController {
                     .sub(sub)
                     .build();
             userRepository.save(newUser);
+            response.sendRedirect(appProperties.getFrontendUrl() + "/preferences");
+        } else {
+            response.sendRedirect(appProperties.getFrontendUrl() + "/dashboard");
         }
-
-        ResponseCookie accessCookie = jwtUtil.createAccessTokenCookie(sub);
-        ResponseCookie refreshCookie = jwtUtil.createRefreshTokenCookie(sub);
-        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-        response.sendRedirect(appProperties.getFrontendUrl() + "/dashboard");
     }
 
     @PostMapping("/logout")
@@ -77,6 +78,7 @@ public class AuthController {
                 .secure(true)
                 .maxAge(0)
                 .sameSite("None")
+                .domain(".inboxlens.app")
                 .build();
 
         ResponseCookie accessCookie = ResponseCookie.from("access")
@@ -85,6 +87,7 @@ public class AuthController {
                 .secure(true)
                 .maxAge(0)
                 .sameSite("None")
+                .domain(".inboxlens.app")
                 .build();
 
         HttpHeaders headers = new HttpHeaders();
