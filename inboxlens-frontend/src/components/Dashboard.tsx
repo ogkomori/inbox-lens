@@ -20,7 +20,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [gmailConnected, setGmailConnected] = useState<boolean | null>(null);
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://www.inboxlens.app";
+  const backendUrl = import.meta.env.VITE_BACKEND_BASE_URL || "https://www.inboxlens.app";
 
   useEffect(() => {
     fetchDashboardDetails()
