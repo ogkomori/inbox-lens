@@ -5,6 +5,7 @@ import com.komori.inboxlens.entity.UserEntity;
 import com.komori.inboxlens.exception.UnauthorizedException;
 import com.komori.inboxlens.repository.UserRepository;
 import com.komori.inboxlens.security.JwtUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -12,7 +13,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
@@ -28,7 +29,8 @@ public class AuthController {
 
     @SuppressWarnings("rawtypes")
     @GetMapping("/login")
-    public ResponseEntity<?> login(@RequestHeader("X-Forwarded-Access-Token") String accessToken) {
+    public void login(@RequestHeader("X-Forwarded-Access-Token") String accessToken,
+                                   HttpServletResponse response) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
 
@@ -43,18 +45,11 @@ public class AuthController {
 
         Map<String, Object> userInfo = userInfoResponse.getBody();
         if (userInfo == null || !userInfo.containsKey("sub")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Failed to get user info");
+            response.sendRedirect(appProperties.getFrontendUrl());
+            return;
         }
 
         String sub = (String) userInfo.get("sub");
-
-        ResponseCookie accessCookie = jwtUtil.createAccessTokenCookie(sub);
-        ResponseCookie refreshCookie = jwtUtil.createRefreshTokenCookie(sub);
-        HttpHeaders cookieHeaders = new HttpHeaders();
-        cookieHeaders.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
-        cookieHeaders.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-        cookieHeaders.setLocation(URI.create(appProperties.getFrontendUrl() + "/dashboard"));
-
         Optional<UserEntity> user = userRepository.findBySub(sub);
         if (user.isEmpty()) {
             String email = (String) userInfo.get("email");
@@ -66,7 +61,12 @@ public class AuthController {
                     .build();
             userRepository.save(newUser);
         }
-        return new ResponseEntity<>(cookieHeaders, HttpStatus.FOUND);
+
+        ResponseCookie accessCookie = jwtUtil.createAccessTokenCookie(sub);
+        ResponseCookie refreshCookie = jwtUtil.createRefreshTokenCookie(sub);
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        response.sendRedirect(appProperties.getFrontendUrl() + "/dashboard");
     }
 
     @PostMapping("/logout")
