@@ -80,7 +80,7 @@ const Navigation: React.FC<NavigationProps> = ({ onContactClick }) => {
               variant="google"
               className="gap-2"
               onClick={() => {
-                window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/oauth2/authorization/google`;
+                window.location.href = "https://auth.inboxlens.app/oauth2/start?rd=/api/auth/login";
               }}
             >
               <FaChrome className="h-4 w-4" />
@@ -125,7 +125,7 @@ const Navigation: React.FC<NavigationProps> = ({ onContactClick }) => {
               size="sm"
               className="gap-2"
               onClick={() => {
-                window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/oauth2/authorization/google`;
+                window.location.href = "https://auth.inboxlens.app/oauth2/start?rd=/api/auth/login";
               }}
             >
               <FaChrome className="h-4 w-4" />

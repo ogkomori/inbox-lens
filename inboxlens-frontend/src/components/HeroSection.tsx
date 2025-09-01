@@ -46,7 +46,7 @@ const HeroSection = () => {
               size="lg"
               className="text-lg px-8 py-4"
               onClick={() => {
-                window.location.href = `${import.meta.env.VITE_BACKEND_BASE_URL}/oauth2/authorization/google`;
+                window.location.href = "https://auth.inboxlens.app/oauth2/start?rd=/api/auth/login";
               }}
             >
               Get Started

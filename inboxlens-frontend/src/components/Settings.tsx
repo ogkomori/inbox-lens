@@ -58,8 +58,8 @@ const Settings = () => {
     try {
       await fetch(`${baseUrl}/api/auth/logout`, { method: "POST", credentials: "include" });
     } catch {}
+    sessionStorage.clear();
     window.location.href = "/";
-    sessionStorage.removeItem("dashboardUserInfo");
   };
 
   const handleDeleteAccount = async () => {
