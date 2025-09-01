@@ -32,6 +32,7 @@ public class JwtUtil {
                 .secure(true)
                 .maxAge(Duration.ofMinutes(10))
                 .sameSite("None")
+                .domain(".inboxlens.app")
                 .build();
     }
 
@@ -42,6 +43,7 @@ public class JwtUtil {
                 .secure(true)
                 .maxAge(Duration.ofDays(14))
                 .sameSite("None")
+                .domain(".inboxlens.app")
                 .build();
     }
 
