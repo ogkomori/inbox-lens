@@ -29,33 +29,35 @@ public class AuthController {
 
     @SuppressWarnings("rawtypes")
     @GetMapping("/login")
-    public void login(@RequestHeader("X-Forwarded-Access-Token") String accessToken,
-                                   HttpServletResponse response) throws IOException {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
+    public void login(@RequestHeader(name = "X-Auth-Request-Access-Token") String accessToken,
+                      @RequestHeader(name = "X-Auth-Request-User") String sub,
+                      HttpServletResponse response) throws IOException {
 
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<Map> userInfoResponse = restTemplate.exchange(
-                "https://openidconnect.googleapis.com/v1/userinfo",
-                HttpMethod.GET,
-                entity,
-                Map.class
-        );
-
-        Map<String, Object> userInfo = userInfoResponse.getBody();
-        if (userInfo == null || !userInfo.containsKey("sub")) {
-            response.sendRedirect(appProperties.getFrontendUrl());
-            return;
-        }
-
-        String sub = (String) userInfo.get("sub");
         ResponseCookie accessCookie = jwtUtil.createAccessTokenCookie(sub);
         ResponseCookie refreshCookie = jwtUtil.createRefreshTokenCookie(sub);
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
         Optional<UserEntity> user = userRepository.findBySub(sub);
-        if (user.isEmpty()) {
+
+        if (user.isEmpty()) { // registering
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+            RestTemplate restTemplate = restTemplateBuilder.build();
+            ResponseEntity<Map> userInfoResponse = restTemplate.exchange(
+                    "https://openidconnect.googleapis.com/v1/userinfo",
+                    HttpMethod.GET,
+                    entity,
+                    Map.class
+            );
+
+            Map<String, Object> userInfo = userInfoResponse.getBody();
+            if (userInfo == null) {
+                response.sendRedirect(appProperties.getFrontendUrl());
+                return;
+            }
+
             String email = (String) userInfo.get("email");
             String name = (String) userInfo.get("given_name");
             UserEntity newUser = UserEntity.builder()
@@ -65,7 +67,7 @@ public class AuthController {
                     .build();
             userRepository.save(newUser);
             response.sendRedirect(appProperties.getFrontendUrl() + "/preferences");
-        } else {
+        } else { // logging in
             response.sendRedirect(appProperties.getFrontendUrl() + "/dashboard");
         }
     }
