@@ -39,8 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const refreshData = await refreshRes.json().catch(() => ({}));
 
         if (refreshRes.status === 401) {
-          // Clear session storage before logout API call
-          sessionStorage.removeItem("dashboardUserInfo");
+          // ...existing code...
           try {
             await fetch(`${baseUrl}/api/auth/logout`, { method: "POST", credentials: "include" });
           } catch (e) {
@@ -57,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (res.status === 401 || data.success === false) {
           setLoggedIn(false);
           setUser(null);
-          sessionStorage.removeItem("dashboardUserInfo");
+          // ...existing code...
           return;
         }
       }
@@ -66,7 +65,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Only set to false if both attempts failed
         setLoggedIn(false);
         setUser(null);
-        sessionStorage.removeItem("dashboardUserInfo");
       } else {
         setLoggedIn(true);
         const userObj = {
@@ -75,13 +73,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           avatar: data.avatar || ""
         };
         setUser(userObj);
-        sessionStorage.setItem("dashboardUserInfo", JSON.stringify(userObj));
       }
     } catch (err) {
 
-      setLoggedIn(false);
-      setUser(null);
-      sessionStorage.removeItem("dashboardUserInfo");
+  setLoggedIn(false);
+  setUser(null);
     }
   };
 
@@ -94,7 +90,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const refreshRes = await fetch(`${baseUrl}/api/auth/refresh`, { method: "POST", credentials: "include" });
       if (refreshRes.status === 401) {
         // Session expired, log out
-        sessionStorage.removeItem("dashboardUserInfo");
         try {
           await fetch(`${baseUrl}/api/auth/logout`, { method: "POST", credentials: "include" });
         } catch {}

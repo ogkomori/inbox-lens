@@ -100,17 +100,11 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<String> refresh(@CookieValue(name = "access", required = false) String accessToken,
-                                     @CookieValue(name = "refresh", required = false) String refreshToken) {
+    public ResponseEntity<String> refresh(@CookieValue(name = "refresh", required = false) String refreshToken) {
 
-        if (refreshToken == null && accessToken == null) {
-            throw new UnauthorizedException("No access/refresh tokens found");
-        }
-
-        if (refreshToken == null && jwtUtil.isTokenExpired(accessToken)) {
+        if (refreshToken == null) {
             throw new UnauthorizedException("No refresh token found");
         }
-
         if (jwtUtil.isTokenExpired(refreshToken)) {
             throw new UnauthorizedException("Refresh token expired");
         }

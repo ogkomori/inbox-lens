@@ -58,7 +58,7 @@ const Settings = () => {
     try {
       await fetch(`${baseUrl}/api/auth/logout`, { method: "POST", credentials: "include" });
     } catch {}
-    sessionStorage.clear();
+  // ...existing code...
     window.location.href = "/";
   };
 
