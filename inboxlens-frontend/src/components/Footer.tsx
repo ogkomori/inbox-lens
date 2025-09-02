@@ -11,8 +11,9 @@ const Footer: React.FC<FooterProps> = ({ fixed = false }) => {
     <>
       <footer className={`w-full border-t border-border bg-background py-8 px-4 ${fixed ? "fixed bottom-0 left-0 z-50" : ""}`}>
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-xs text-muted-foreground text-center md:text-left">
-            &copy; {new Date().getFullYear()} InboxLens. Built by Tega Komori.
+          <div className="text-xs text-muted-foreground text-center md:text-left flex items-center gap-4">
+            <a href="/privacy-policy" className="hover:text-primary transition-colors">Privacy Policy</a>
+            <span>&copy; {new Date().getFullYear()} InboxLens. Built by Tega Komori.</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <button
