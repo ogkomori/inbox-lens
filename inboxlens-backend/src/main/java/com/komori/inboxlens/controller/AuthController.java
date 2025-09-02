@@ -29,8 +29,8 @@ public class AuthController {
 
     @SuppressWarnings("rawtypes")
     @GetMapping("/login")
-    public void login(@RequestHeader(name = "X-Auth-Request-Access-Token") String accessToken,
-                      @RequestHeader(name = "X-Auth-Request-User") String sub,
+    public void login(@RequestHeader(name = "X-Forwarded-Access-Token") String accessToken,
+                      @RequestHeader(name = "X-Forwarded-User") String sub,
                       HttpServletResponse response) throws IOException {
 
         ResponseCookie accessCookie = jwtUtil.createAccessTokenCookie(sub);
