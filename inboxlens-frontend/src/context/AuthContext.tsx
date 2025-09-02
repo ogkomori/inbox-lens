@@ -5,18 +5,23 @@ interface User {
   name: string;
   email: string;
   avatar: string;
+  trackables: number;
+  toDoList: number;
+  digests: number;
 }
 
 interface AuthContextType {
   loggedIn: boolean | null;
   user: User | null;
   authFetch: (input: RequestInfo, init?: RequestInit, retry?: boolean) => Promise<Response>;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   loggedIn: null,
   user: null,
   authFetch: async () => { throw new Error("authFetch not initialized") },
+  logout: () => { throw new Error("logout not initialized") },
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -70,7 +75,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const userObj = {
           name: data.name || "",
           email: data.email || "",
-          avatar: data.avatar || ""
+          avatar: data.avatar || "",
+          trackables: typeof data.trackables === "number" ? data.trackables : 0,
+          toDoList: typeof data.toDoList === "number" ? data.toDoList : 0,
+          digests: typeof data.digests === "number" ? data.digests : 0
         };
         setUser(userObj);
       }
@@ -108,12 +116,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return res;
   };
 
+  const logout = () => {
+    setLoggedIn(false);
+    setUser(null);
+    window.location.href = "/";
+  };
+
   useEffect(() => {
     fetchAuth();
   }, []);
 
   return (
-  <AuthContext.Provider value={{ loggedIn, user, authFetch }}>
+    <AuthContext.Provider value={{ loggedIn, user, authFetch, logout }}>
       {loggedIn === null ? (
         <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-primary border-solid" aria-label="Loading authentication status"></div>

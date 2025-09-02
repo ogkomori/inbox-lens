@@ -51,6 +51,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
             }
+        } else { // If the jwt wasn't found at all
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);

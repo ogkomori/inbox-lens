@@ -1,4 +1,3 @@
-
 import DashboardNavigation from "@/components/DashboardNavigation";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,7 @@ const question3Options = [
 ];
 
 const Settings = () => {
-  const { user, authFetch } = useAuth();
+  const { user, authFetch, logout } = useAuth();
   const [section, setSection] = useState("profile");
   // Profile edit state
   const [editName, setEditName] = useState(user?.name ?? "");
@@ -51,16 +50,6 @@ const Settings = () => {
   // Danger zone dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
-
-  // Logout utility (copied from AuthContext)
-  const logout = async () => {
-    const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
-    try {
-      await fetch(`${baseUrl}/api/auth/logout`, { method: "POST", credentials: "include" });
-    } catch {}
-  // ...existing code...
-    window.location.href = "/";
-  };
 
   const handleDeleteAccount = async () => {
     setDeleting(true);
