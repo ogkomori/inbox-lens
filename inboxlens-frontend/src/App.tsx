@@ -33,11 +33,13 @@ const AppContent: React.FC<{ handleContactClick: () => void; contactOpen: boolea
   const { loggedIn, user } = useAuth();
   // Determine which navbar to show
   const isHome = location.pathname === "/";
+  const isPrivacyPolicy = location.pathname === "/privacy-policy";
+  // Only Navigation or DashboardNavigation
+  const showNavigation = isHome || isPrivacyPolicy;
   return (
     <div className="relative flex flex-col min-h-screen bg-background transition-colors">
       <GeometricBackground />
-      {/* Navbar logic */}
-      {isHome ? (
+      {showNavigation ? (
         <Navigation onContactClick={handleContactClick} />
       ) : (
         <DashboardNavigation user={user ?? { name: "", email: "", avatar: "" }} />
@@ -58,9 +60,7 @@ const AppContent: React.FC<{ handleContactClick: () => void; contactOpen: boolea
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
-      {/* Footer: fixed for non-homepage, normal for homepage */}
       {isHome ? <Footer /> : <Footer fixed />}
-      {/* Floating Contact Button */}
       <button
         className="fixed bottom-6 right-6 z-50 bg-primary text-primary-foreground rounded-full shadow-lg p-4 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary"
         style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}

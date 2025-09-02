@@ -2,19 +2,17 @@ import React from "react";
 
 const PrivacyPolicy: React.FC = () => {
   return (
-    <div className="max-w-3xl mx-auto py-16 px-4">
+    <div className="max-w-3xl mx-auto pt-24 pb-32 px-4">
       <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
-      <div className="text-lg text-muted-foreground space-y-6">
+      <div className="text-lg text-black dark:text-white space-y-6">
         <div>
           <strong>InboxLens Privacy Policy</strong><br />
           <span className="text-sm">Last Updated: September 2025</span>
         </div>
-
         <section>
           <h2 className="text-xl font-semibold mb-2">1. Introduction</h2>
-          <p>InboxLens ("we", "our", or "us") is a personal email assistant that integrates with Gmail to generate concise summaries of daily emails and manage actionable emails. We respect your privacy and are committed to protecting your personal information.</p>
+          <p>InboxLens ("we", "our", or "us") is a personal job application tracker that integrates with Gmail to help users organize and manage job-related emails. We respect your privacy and are committed to protecting your personal information.</p>
         </section>
-
         <section>
           <h2 className="text-xl font-semibold mb-2">2. Information We Collect</h2>
           <ul className="list-disc ml-6">
@@ -23,7 +21,6 @@ const PrivacyPolicy: React.FC = () => {
             <li>User-provided account details (if you sign up within InboxLens).</li>
           </ul>
         </section>
-
         <section>
           <h2 className="text-xl font-semibold mb-2">3. How We Use Information</h2>
           <ul className="list-disc ml-6">
@@ -33,12 +30,10 @@ const PrivacyPolicy: React.FC = () => {
             <li>We do not sell or share your data with third parties.</li>
           </ul>
         </section>
-
         <section>
           <h2 className="text-xl font-semibold mb-2">4. Google API Services</h2>
           <p>Our use of information obtained from Google APIs complies with the Google API Services User Data Policy, including the Limited Use requirements. Gmail data is only accessed to identify and organize actionable emails, and is never transferred to any third party.</p>
         </section>
-
         <section>
           <h2 className="text-xl font-semibold mb-2">5. Data Sharing and Disclosure</h2>
           <p>We do not share your personal data with third parties except:</p>
@@ -47,7 +42,6 @@ const PrivacyPolicy: React.FC = () => {
             <li>To service providers strictly necessary to operate InboxLens (e.g., database hosting).</li>
           </ul>
         </section>
-
         <section>
           <h2 className="text-xl font-semibold mb-2">6. Data Storage and Security</h2>
           <ul className="list-disc ml-6">
@@ -56,7 +50,6 @@ const PrivacyPolicy: React.FC = () => {
             <li>We do not allow human access to Gmail data except with your consent, for security reasons, or to comply with law.</li>
           </ul>
         </section>
-
         <section>
           <h2 className="text-xl font-semibold mb-2">7. User Control and Data Deletion</h2>
           <ul className="list-disc ml-6">
@@ -64,21 +57,19 @@ const PrivacyPolicy: React.FC = () => {
             <li>You may request deletion of your account and data by contacting us at the email below.</li>
           </ul>
         </section>
-
         <section>
           <h2 className="text-xl font-semibold mb-2">8. Cookies and Tracking</h2>
           <p>InboxLens uses session cookies and tokens strictly for authentication and security purposes. We do not use third-party tracking cookies.</p>
         </section>
-
         <section>
           <h2 className="text-xl font-semibold mb-2">9. Changes to This Policy</h2>
           <p>We may update this Privacy Policy from time to time. We will notify users by updating the "Last Updated" date at the top of this page.</p>
         </section>
-
         <section>
           <h2 className="text-xl font-semibold mb-2">10. Contact Us</h2>
-          <p>If you have questions or concerns about this Privacy Policy, please contact us at:</p>
-          <p className="font-mono">inboxlens.app@gmail.com</p>
+          <p>
+            If you have questions or concerns about this Privacy Policy, please contact us at: <a href="mailto:inboxlens.app@gmail.com" className="underline text-primary font-mono ml-1">inboxlens.app@gmail.com</a>
+          </p>
         </section>
       </div>
     </div>

@@ -14,23 +14,34 @@ const Navigation: React.FC<NavigationProps> = ({ onContactClick }) => {
   const { loggedIn, authFetch } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const location = useLocation();
-
+  const goHome = () => {
+    window.location.href = "/";
+  };
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
-    element?.scrollIntoView({ behavior: 'smooth' });
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.location.href = `/#${sectionId}`;
+    }
   };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 font-bold text-2xl bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+        <button
+          className="flex items-center gap-2 focus:outline-none"
+          onClick={goHome}
+          aria-label="Go to homepage"
+          style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
+        >
           <img src="/favicon.ico" alt="InboxLens logo" className="h-7 w-7" />
-          InboxLens
-        </div>
+          <span className="font-bold text-2xl bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">InboxLens</span>
+        </button>
         
         <div className="hidden md:flex items-center space-x-8">
           <button 
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={goHome}
             className={`text-foreground hover:text-primary transition-colors ${location.pathname === '/' ? 'font-bold underline' : ''}`}
           >
             Home
