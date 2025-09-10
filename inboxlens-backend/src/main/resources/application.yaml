@@ -24,20 +24,6 @@ spring:
           google:
             authorization-uri: "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline"
             token-uri: "https://oauth2.googleapis.com/token"
-  mail:
-    host: smtp-relay.brevo.com
-    port: 587
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    protocol: smtp
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
-          from: ${MAIL_FROM}
 
 gmail:
   oauth2:
@@ -67,3 +53,6 @@ server:
 app:
   frontend-url: ${FRONTEND_URL}
 
+brevo:
+  api-key: ${BREVO_API_KEY}
+  from-email: ${BREVO_FROM_EMAIL}
