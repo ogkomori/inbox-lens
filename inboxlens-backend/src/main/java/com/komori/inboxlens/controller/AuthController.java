@@ -5,6 +5,7 @@ import com.komori.inboxlens.entity.UserEntity;
 import com.komori.inboxlens.exception.UnauthorizedException;
 import com.komori.inboxlens.repository.UserRepository;
 import com.komori.inboxlens.security.JwtUtil;
+import com.komori.inboxlens.service.MailSendingService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ public class AuthController {
     private final RestTemplateBuilder restTemplateBuilder;
     private final UserRepository userRepository;
     private final AppProperties appProperties;
+    private final MailSendingService mailSendingService;
 
     @SuppressWarnings("rawtypes")
     @GetMapping("/login")
@@ -66,6 +68,7 @@ public class AuthController {
                     .sub(sub)
                     .build();
             userRepository.save(newUser);
+            mailSendingService.sendWelcomeEmail(email, name);
             response.sendRedirect(appProperties.getFrontendUrl() + "/preferences");
         } else { // logging in
             response.sendRedirect(appProperties.getFrontendUrl() + "/dashboard");
