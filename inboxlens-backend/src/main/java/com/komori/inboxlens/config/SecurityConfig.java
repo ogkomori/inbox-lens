@@ -1,7 +1,6 @@
 package com.komori.inboxlens.config;
 
 import com.komori.inboxlens.security.CustomAuthenticationEntryPoint;
-import com.komori.inboxlens.security.CustomAuthenticationSuccessHandler;
 import com.komori.inboxlens.security.JwtRequestFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -24,7 +23,6 @@ import java.util.List;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final CustomAuthenticationSuccessHandler successHandler;
     private final JwtRequestFilter jwtRequestFilter;
     private final AppProperties appProperties;
 
@@ -40,7 +38,6 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .requestCache(RequestCacheConfigurer::disable)
                 .securityContext(sec -> sec.requireExplicitSave(true))
-                .oauth2Login(login -> login.successHandler(successHandler))
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(customAuthenticationEntryPoint))
                 .build();
