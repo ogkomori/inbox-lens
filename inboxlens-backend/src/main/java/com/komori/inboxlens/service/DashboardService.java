@@ -33,6 +33,7 @@ public class DashboardService {
         return DashboardDetails.builder()
                 .email(userEntity.getEmail())
                 .name(userEntity.getName())
+                .picture(userEntity.getProfilePictureUrl())
                 .digests(userEntity.getDigests())
                 .toDoList(toDos)
                 .trackables(trackables)

@@ -1,18 +1,16 @@
 import DashboardNavigation from "@/components/DashboardNavigation";
 import { CheckSquare, Target, Mail } from "lucide-react";
 import Footer from "@/components/Footer";
-
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchDashboardDetails } from "../lib/profileApi";
-
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [details, setDetails] = useState<{
     name: string;
     email: string;
+    picture?: string;
     toDoList: number;
     trackables: number;
     digests: number;
@@ -47,11 +45,11 @@ const Dashboard = () => {
     );
   }
   if (error || !details) {
-    return <div className="text-red-500 p-8">Failed to load dashboard details: {error}</div>;
+  return <div className="text-red-500 p-8">Failed to load dashboard details: {error}</div>;
   }
   return (
     <div className="flex flex-col min-h-screen relative">
-      <DashboardNavigation user={{ name: details.name, avatar: "", email: details.email }} />
+      <DashboardNavigation user={{ name: details.name, email: details.email, picture: details.picture }} />
   <main className="flex-1 flex flex-col items-center justify-start px-4 py-4 w-full pt-28 pb-20 relative z-10">
         {/* Welcome + Stats Grid Row */}
         <div className="w-full max-w-6xl mb-14 flex flex-col items-start">

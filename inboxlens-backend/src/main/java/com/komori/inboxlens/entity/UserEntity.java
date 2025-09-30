@@ -31,6 +31,7 @@ public class UserEntity {
     private String refreshToken;
     private Instant refreshTokenIssuedAt;
     private String preferredTime;
+    private String profilePictureUrl;
     @Builder.Default
     private Boolean inboxAccessGranted = false;
     @Builder.Default

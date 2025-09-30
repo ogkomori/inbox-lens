@@ -36,8 +36,6 @@ public class EmailDigestService {
         UserEntity user = userRepository.findBySub(sub)
                         .orElseThrow(() -> new UsernameNotFoundException("Sub not found"));
 
-        log.info("Starting processing for user: {}", sub);
-
         Preferences userPreferences = Preferences.builder()
                 .userCategory(user.getUserCategory())
                 .emailTypes(user.getEmailTypes())
@@ -54,7 +52,6 @@ public class EmailDigestService {
                 stats,
                 summary
         );
-        log.info("Completed processing for user: {}", sub);
         int digests = user.getDigests();
         user.setDigests(digests + 1);
         userRepository.save(user);

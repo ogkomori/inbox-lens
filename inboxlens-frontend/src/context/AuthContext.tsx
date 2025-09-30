@@ -4,7 +4,7 @@ import { toast } from "@/hooks/use-toast";
 interface User {
   name: string;
   email: string;
-  avatar: string;
+  picture?: string;
   trackables: number;
   toDoList: number;
   digests: number;

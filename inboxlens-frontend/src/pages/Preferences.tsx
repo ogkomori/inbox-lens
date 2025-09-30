@@ -154,7 +154,7 @@ export const Preferences: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col relative">
-      <DashboardNavigation user={{ name: '', email: '', avatar: '' }} />
+  <DashboardNavigation user={{ name: '', email: '' }} />
   <div className="min-h-screen flex items-center justify-center p-2 mt-[-12px]">
         <Card className="w-full max-w-4xl p-4 md:p-6 relative">
           <Button variant="outline" className="absolute top-4 right-4" onClick={handleSkip}>

@@ -27,11 +27,9 @@ public class EmailDigestScheduler {
         List<UserEntity> users = userRepository.findAllByPreferredTime(time);
 
         if (users.isEmpty()) {
-            log.info("No users with preferred time: {}", time);
             return;
         }
 
-        log.info("Processing {} users", users.size());
         List<CompletableFuture<Void>> futures = users.stream()
                 .map(user -> emailDigestService.processUserEmails(user.getSub()))
                 .toList();

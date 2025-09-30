@@ -1,9 +1,11 @@
-
-
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 
-const HeroSection = () => {
+interface HeroSectionProps {
+  onContactClick?: () => void;
+}
+
+const HeroSection: React.FC<HeroSectionProps> = ({ onContactClick }) => {
   const { loggedIn } = useAuth();
 
   // Adjust this value to match the height of your MAIN navigation bar (e.g., 64px for 4rem)

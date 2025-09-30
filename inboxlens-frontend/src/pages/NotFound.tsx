@@ -1,5 +1,4 @@
 import { usePageTitle } from "@/hooks/usePageTitle";
-
 import ContactModal from "@/components/ContactModal";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";

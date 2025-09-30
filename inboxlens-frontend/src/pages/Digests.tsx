@@ -32,7 +32,7 @@ const Digests: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <DashboardNavigation user={{ name: '', email: '', avatar: '' }} />
+  <DashboardNavigation user={{ name: '', email: '' }} />
       <div className="container mx-auto pt-24">
         <Button variant="default" className="mb-6 bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => navigate('/dashboard')}>&larr; Back to dashboard</Button>
         <h2 className="text-2xl font-bold mb-4">Digests</h2>

@@ -54,6 +54,7 @@ public class AuthController {
                     Map.class
             );
 
+            //noinspection unchecked
             Map<String, Object> userInfo = userInfoResponse.getBody();
             if (userInfo == null) {
                 response.sendRedirect(appProperties.getFrontendUrl());
@@ -62,9 +63,11 @@ public class AuthController {
 
             String email = (String) userInfo.get("email");
             String name = (String) userInfo.get("given_name");
+            String picture = (String) userInfo.get("picture");
             UserEntity newUser = UserEntity.builder()
                     .email(email)
                     .name(name)
+                    .profilePictureUrl(picture)
                     .sub(sub)
                     .build();
             userRepository.save(newUser);

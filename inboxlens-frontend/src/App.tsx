@@ -42,7 +42,7 @@ const AppContent: React.FC<{ handleContactClick: () => void; contactOpen: boolea
       {showNavigation ? (
         <Navigation onContactClick={handleContactClick} />
       ) : (
-        <DashboardNavigation user={user ?? { name: "", email: "", avatar: "" }} />
+  <DashboardNavigation user={user ?? { name: "", email: "", picture: "" }} />
       )}
       <div className="flex-1 flex flex-col relative z-10">
         <Routes>

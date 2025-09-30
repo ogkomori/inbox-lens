@@ -11,7 +11,7 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ onContactClick }) => {
-  const { loggedIn, authFetch } = useAuth();
+  const { loggedIn, authFetch, user } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const location = useLocation();
   const goHome = () => {
@@ -67,8 +67,15 @@ const Navigation: React.FC<NavigationProps> = ({ onContactClick }) => {
                 onClick={() => setDropdownOpen((open) => !open)}
                 aria-label="Open profile menu"
               >
-                {/* Replace with user profile image if available */}
-                <FaUserCircle className="h-8 w-8 text-primary" />
+                {user?.picture ? (
+                  <img
+                    src={user.picture}
+                    alt="User avatar"
+                    className="h-8 w-8 rounded-full object-cover border border-muted"
+                  />
+                ) : (
+                  <FaUserCircle className="h-8 w-8 text-primary" />
+                )}
               </button>
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-card rounded shadow-lg z-50 flex flex-col">
@@ -110,7 +117,15 @@ const Navigation: React.FC<NavigationProps> = ({ onContactClick }) => {
                 onClick={() => setDropdownOpen((open) => !open)}
                 aria-label="Open profile menu"
               >
-                <FaUserCircle className="h-7 w-7 text-primary" />
+                {user?.picture ? (
+                  <img
+                    src={user.picture}
+                    alt="User avatar"
+                    className="h-7 w-7 rounded-full object-cover border border-muted"
+                  />
+                ) : (
+                  <FaUserCircle className="h-7 w-7 text-primary" />
+                )}
               </button>
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-40 bg-card rounded shadow-lg z-50 flex flex-col">

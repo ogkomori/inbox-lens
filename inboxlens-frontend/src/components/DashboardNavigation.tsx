@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
@@ -8,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 type User = {
   name: string;
   email: string;
-  avatar: string;
+  picture?: string;
 };
 
 const DashboardNavigation = ({ user }: { user: User }) => {
@@ -51,8 +50,8 @@ const DashboardNavigation = ({ user }: { user: User }) => {
                 aria-label="Open profile menu"
                 type="button"
               >
-                {user.avatar ? (
-                  <img src={user.avatar} alt="avatar" className="h-8 w-8 rounded-full" />
+                {user.picture ? (
+                  <img src={user.picture} alt="avatar" className="h-8 w-8 rounded-full object-cover border border-muted" />
                 ) : (
                   <FaUserCircle className="h-8 w-8 text-primary" />
                 )}

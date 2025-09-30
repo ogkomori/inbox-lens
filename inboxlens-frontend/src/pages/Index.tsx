@@ -1,13 +1,16 @@
 import HeroSection from "@/components/HeroSection";
 import AboutSection from "@/components/AboutSection";
-import GeometricBackground from "@/components/GeometricBackground";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
-const Index = ({ onContactClick }: { onContactClick: () => void }) => {
+interface IndexProps {
+  onContactClick: () => void;
+}
+
+const Index: React.FC<IndexProps> = ({ onContactClick }) => {
   usePageTitle();
   return (
     <div className="min-h-screen flex flex-col relative">
-      <HeroSection />
+      <HeroSection onContactClick={onContactClick} />
       <div className="flex flex-col flex-1">
         <AboutSection />
       </div>
