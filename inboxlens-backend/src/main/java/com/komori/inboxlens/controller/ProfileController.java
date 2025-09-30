@@ -25,9 +25,9 @@ public class ProfileController {
         return ResponseEntity.ok("Preferences saved successfully");
     }
 
-    @PatchMapping("/set-name")
+    @PatchMapping("/set-name/{name}")
     public ResponseEntity<String> setName(@CurrentSecurityContext(expression = "authentication?.name") String sub,
-                                          @RequestBody String name) {
+                                          @PathVariable String name) {
         if (sub == null || sub.equals("anonymousUser")) {
             throw new UnauthorizedException("User is not logged in");
         }
